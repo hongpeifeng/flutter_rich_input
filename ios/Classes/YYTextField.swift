@@ -63,7 +63,7 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
         textView.attributedText = text
         textView.textContainerInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
         textView.delegate = self
-        textView.backgroundColor = #colorLiteral(red: 0.501960814, green: 0.501960814, blue: 0.501960814, alpha: 1)
+        textView.backgroundColor = #colorLiteral(red: 0.501960814, green: 0.501960814, blue: 0.501960814, alpha: 1).withAlphaComponent(0.2)
         textView.maxHeight = 142
         textView.minHeight = 40
     }
@@ -195,8 +195,11 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
         let frame = textView.frame
         channel.invokeMethod("updateHeight", arguments: height)
 //        UIView.animate(withDuration: 0.3) {
-            textView.frame = CGRect(x: frame.origin.x, y: frame.origin.y, width: frame.size.width, height: height)
+            
 //        }
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.3) {
+            textView.frame = CGRect(x: frame.origin.x, y: frame.origin.y, width: frame.size.width, height: height)
+        }
     }
 
 }

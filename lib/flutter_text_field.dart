@@ -89,8 +89,7 @@ class _YYTextFieldState extends State<YYTextField> {
   @override
   Widget build(BuildContext context) {
     if (Platform.isIOS) {
-      return Container(
-//        color: Colors.grey,
+      return SizedBox(
         height: _height,
         child: Focus(
           focusNode: widget.focusNode,
