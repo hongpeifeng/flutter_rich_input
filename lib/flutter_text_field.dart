@@ -13,14 +13,10 @@ class YYTextFieldController {
   void setViewId(String viewId) {
     if (_channel != null) return;
     _channel = MethodChannel('com.fanbook.yytextfield_$viewId');
-    _channel.setMethodCallHandler(_handleMethodCall);
   }
 
-  Future _handleMethodCall(MethodCall call) async {
-    switch (call.method) {
-      case "___":
-        break;
-    }
+  void setMethodCallHandler(Future<dynamic> Function(MethodCall call) handler) {
+    _channel.setMethodCallHandler(handler);
   }
 
   Future insertAtName(String name) async {
@@ -56,6 +52,9 @@ class YYTextField extends StatefulWidget {
 }
 
 class _YYTextFieldState extends State<YYTextField> {
+
+  double _height = 40;
+
   Map createParams() {
     return {
       'text': widget.text,
@@ -74,19 +73,37 @@ class _YYTextFieldState extends State<YYTextField> {
     };
   }
 
+  Future<void> _handlerCall(MethodCall call) async {
+    switch (call.method) {
+      case 'updateHeight':
+        print("flutter height: $call.arguments");
+        setState(() {
+          _height = call.arguments ?? 40;
+        });
+        break;
+      default:
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (Platform.isIOS) {
-      return Focus(
-        focusNode: widget.focusNode,
-        onFocusChange: (focus) {},
-        child: UiKitView(
-          viewType: "com.fanbook.yytextfield",
-          creationParams: createParams(),
-          creationParamsCodec: const StandardMessageCodec(),
-          onPlatformViewCreated: (viewId) {
-            widget.controller.setViewId('$viewId');
-          },
+      return Container(
+//        color: Colors.grey,
+        height: _height,
+        child: Focus(
+          focusNode: widget.focusNode,
+          onFocusChange: (focus) {},
+          child: UiKitView(
+            viewType: "com.fanbook.yytextfield",
+            creationParams: createParams(),
+            creationParamsCodec: const StandardMessageCodec(),
+            onPlatformViewCreated: (viewId) {
+              widget.controller.setViewId('$viewId');
+              widget.controller.setMethodCallHandler(_handlerCall);
+            },
+          ),
         ),
       );
     }

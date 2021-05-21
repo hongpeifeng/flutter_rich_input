@@ -50,17 +50,14 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body:  Column(
         children: [
-          Container(
-            height: 200,
-            child: YYTextField(
-              controller: _controller,
-              focusNode: FocusNode(),
-              text: '1233',
-              textStyle: Theme.of(context).textTheme.bodyText2,
-              placeHolder: '请输入....',
-              placeHolderStyle: Theme.of(context).textTheme.bodyText1,
-              maxLength: 5000,
-            ),
+          YYTextField(
+            controller: _controller,
+            focusNode: FocusNode(),
+            text: '1233',
+            textStyle: Theme.of(context).textTheme.bodyText2,
+            placeHolder: '请输入....',
+            placeHolderStyle: Theme.of(context).textTheme.bodyText1,
+            maxLength: 5000,
           ),
           TextButton(onPressed: (){
             _controller.insertAtName("周大蝠");
