@@ -18,6 +18,7 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
     var channel:FlutterMethodChannel!
     
     var defaultAttributes: [NSAttributedString.Key: Any] = [
+        bindClassKey: "",
         .font: UIFont.systemFont(ofSize: 14),
         .foregroundColor: UIColor.black,
     ]
@@ -50,8 +51,6 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
         
         let text:NSMutableAttributedString = NSMutableAttributedString(string: initText)
     
-        
-        
         super.init()
         
         channel = FlutterMethodChannel(name: "com.fanbook.yytextfield_\(viewId)", binaryMessenger: messenger)
@@ -87,7 +86,7 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
     
     
     func appendAtString(name: String) {
-        let atName = "@\(name)"
+        let atName = "@\(name) "
         
         let str = NSMutableAttributedString(attributedString: textView.attributedText!)
     
@@ -96,30 +95,113 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
         let attr:[NSAttributedString.Key: Any] = getAtAttributes()
         
         str.insert(NSAttributedString(string: atName,attributes: attr), at: location)
-        
-        var defaultAttr = defaultAttributes
-        defaultAttr[bindClassKey] = attr[bindClassKey]
-        
-        str.insert(NSAttributedString(string: " ", attributes: defaultAttr), at: location + atName.count)
-        
+    
         textView.attributedText = str
         
         textView.selectedRange = NSMakeRange(location + atName.count + 1, 0)
     }
     
     func appendChannelString(name: String) {
+        let atName = "#\(name) "
         
+        let str = NSMutableAttributedString(attributedString: textView.attributedText!)
+    
+        let location = textView.selectedRange.location
+        
+        let attr:[NSAttributedString.Key: Any] = getAtAttributes()
+        
+        str.insert(NSAttributedString(string: atName,attributes: attr), at: location)
+    
+        textView.attributedText = str
+        
+        textView.selectedRange = NSMakeRange(location + atName.count + 1, 0)
     }
     
     func view() -> UIView {
         return textView
     }
     
-    func isBindClass(attr: [NSAttributedString.Key : Any]) -> Bool {
-        return attr.keys.contains(bindClassKey)
+    
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool{
+        // 重置输入样式
+        textView.typingAttributes = defaultAttributes
+        // 输入文字
+        if (range.location >= textView.attributedText.length) {
+            return true
+        }
+        if range.length > 1 {
+            // 需要把包含在range这个区间头部和尾部的富文本样式去掉
+            let beginRange = getCurrentRange(position: range.location)
+            let count = (textView.text as NSString).substring(with: beginRange).trimmingCharacters(in: .whitespaces).count
+            if beginRange != NSRange() && range.location < beginRange.location + count {
+                let str = NSMutableAttributedString(attributedString: textView.attributedText!)
+                str.addAttributes(defaultAttributes, range: beginRange)
+                textView.attributedText = str
+                textView.selectedRange = range
+            }
+            let endRange = getCurrentRange(position: range.location + range.length)
+            if endRange != NSRange() && beginRange != endRange {
+                if range.location + range.length > endRange.location {
+                    let str = NSMutableAttributedString(attributedString: textView.attributedText!)
+                    str.addAttributes(defaultAttributes, range: endRange)
+                    textView.attributedText = str
+                    textView.selectedRange = range
+                }
+            }
+            return true
+        }
+        
+        // 删除或者替换文字
+        let _range = getCurrentRange(position: range.location)
+        if _range != NSRange() {
+            let count = (textView.text as NSString).substring(with: _range).trimmingCharacters(in: .whitespaces).count
+            // 尾部删除
+            if (range.length == 1 && text.count == 0)
+                && (range.location + 1 == _range.location + count || range.location + 1 == _range.location + count + 1) {
+                let textRange = textView.textRange(from: textView.position(from: textView.beginningOfDocument, offset: _range.location)!, to: textView.position(from: textView.beginningOfDocument, offset: _range.location + _range.length)!)
+                textView.replace(textRange!, withText: text)
+                return false
+            }
+            // 尾部添加
+            else if (range.length == 0 && text.count > 0)
+                && (range.location == _range.location + count || range.location == _range.location + count + 1) {
+                return true
+            }
+            // 正常删除，并去掉样式
+            else if range.location > _range.location {
+                let str = NSMutableAttributedString(attributedString: textView.attributedText!)
+                str.addAttributes(defaultAttributes, range: _range)
+                textView.attributedText = str
+                textView.selectedRange = range
+                return true
+            }
+            
+        }
+        
+        return true
     }
     
+    /// 高度变化回调
+    func textViewDidChangeHeight(_ textView: GrowingTextView, height: CGFloat) {
+        let frame = textView.frame
+        channel.invokeMethod("updateHeight", arguments: height)
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.3) {
+            textView.frame = CGRect(x: frame.origin.x, y: frame.origin.y, width: frame.size.width, height: height)
+        }
+    }
+
+}
+
+
+// MARK: - Range 处理
+extension YYTextField {
+    
     func getBindClassValue(attr: [NSAttributedString.Key : Any]) -> String? {
+        
+        func isBindClass(attr: [NSAttributedString.Key : Any]) -> Bool {
+            return attr.keys.contains(bindClassKey) && (attr[bindClassKey] as! String).count > 0
+        }
+        
         if !isBindClass(attr: attr) {
             return nil
         }
@@ -156,51 +238,4 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
         return NSRange(location: _location, length: _length)
     }
     
-    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool{
-        // 输入文字
-        if (range.location >= textView.attributedText.length) {
-            return true
-        }
-        if range.length > 1 {
-            return true
-        }
-        
-        // 删除或者替换文字
-        let range = getCurrentRange(position: range.location)
-        if range != NSRange() && range.location != textView.selectedRange.location {
-            let textRange = textView.textRange(from: textView.position(from: textView.beginningOfDocument, offset: range.location)!, to: textView.position(from: textView.beginningOfDocument, offset: range.location + range.length)!)
-            textView.replace(textRange!, withText: "")
-            return false
-        }
-        
-        return true
-    }
-
-    func textViewDidChangeSelection(_ textView: UITextView){
-        let selectedRange = textView.selectedRange
-        if (selectedRange.location >= textView.attributedText.length) {
-            return
-        }
-        if selectedRange.length == 0 { // 未选择任何东西
-            if getBindClassValue(position: selectedRange.location) != nil {
-                let range = getCurrentRange(position: selectedRange.location)
-                let isLead = abs(range.location - selectedRange.location) - abs(range.location + range.length - selectedRange.location) <= 0
-                textView.selectedRange = NSRange(location: isLead ? range.location : (range.location + range.length), length: 0)
-            }
-        }
-    }
-    
-    func textViewDidChangeHeight(_ textView: GrowingTextView, height: CGFloat) {
-        print("height: \(height)")
-        let frame = textView.frame
-        channel.invokeMethod("updateHeight", arguments: height)
-//        UIView.animate(withDuration: 0.3) {
-            
-//        }
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.3) {
-            textView.frame = CGRect(x: frame.origin.x, y: frame.origin.y, width: frame.size.width, height: height)
-        }
-    }
-
 }
-
