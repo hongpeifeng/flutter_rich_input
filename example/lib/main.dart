@@ -6,7 +6,6 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -29,11 +28,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   int _viewId = 0;
   YYTextFieldController _controller = YYTextFieldController();
-
-
+  FocusNode _focusNode = FocusNode();
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -48,23 +45,30 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body:  Column(
+      body: Column(
         children: [
           YYTextField(
             controller: _controller,
-            focusNode: FocusNode(),
+            focusNode: _focusNode,
             text: '1233',
-            textStyle: Theme.of(context).textTheme.bodyText2,
+            textStyle: Theme.of(context).textTheme.bodyText2.copyWith(
+              color: Colors.black,
+              fontSize: 14
+            ),
             placeHolder: '请输入....',
             placeHolderStyle: Theme.of(context).textTheme.bodyText1,
             maxLength: 5000,
           ),
-          TextButton(onPressed: (){
-            _controller.insertAtName("周大蝠");
-          }, child: Text('插入@')),
-          TextButton(onPressed: (){
-            _controller.insertChannelName('蝠道');
-          }, child: Text('插入#')),
+          TextButton(
+              onPressed: () {
+                _controller.insertAtName("周大蝠");
+              },
+              child: Text('插入@')),
+          TextButton(
+              onPressed: () {
+                _controller.insertChannelName('蝠道');
+              },
+              child: Text('插入#')),
         ],
       ),
     );

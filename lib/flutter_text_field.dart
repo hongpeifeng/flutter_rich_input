@@ -19,13 +19,42 @@ class YYTextFieldController {
     _channel.setMethodCallHandler(handler);
   }
 
-  Future insertAtName(String name) async {
-    return _channel.invokeMethod("insertAtName", name);
+  Future insertAtName(String name, {TextStyle textStyle}) async {
+    textStyle ??= TextStyle(
+      color: Colors.lightBlueAccent,
+      fontSize: 14,
+      height: 1.17
+    );
+    return _channel.invokeMethod("insertAtName", {
+      'name': name,
+      'textStyle': {
+        'color': textStyle.color.value,
+        'fontSize': textStyle.fontSize,
+        'height': textStyle.height ?? 1.17
+      }
+    });
   }
 
-  Future insertChannelName(String name) async {
-    return _channel.invokeMethod("insertChannelName", name);
+  Future insertChannelName(String name, {TextStyle textStyle}) async {
+    textStyle ??= TextStyle(
+        color: Colors.lightBlueAccent,
+        fontSize: 14,
+        height: 1.17
+    );
+    return _channel.invokeMethod("insertChannelName", {
+      'name': name,
+      'textStyle': {
+        'color': textStyle.color.value,
+        'fontSize': textStyle.fontSize,
+        'height': textStyle.height ?? 1.17
+      }
+    });
   }
+
+  Future updateFocus(bool focus) async {
+    return _channel.invokeMethod("updateFocus", focus);
+  }
+
 }
 
 class YYTextField extends StatefulWidget {
@@ -81,6 +110,15 @@ class _YYTextFieldState extends State<YYTextField> {
           _height = call.arguments ?? 40;
         });
         break;
+      case 'updateFocus':
+        print("updateFocus: ${call.arguments}");
+        final focus = call.arguments ?? false;
+        if (focus) {
+          widget.focusNode.requestFocus();
+        } else {
+          widget.focusNode.unfocus();
+        }
+        break;
       default:
         break;
     }
@@ -93,7 +131,9 @@ class _YYTextFieldState extends State<YYTextField> {
         height: _height,
         child: Focus(
           focusNode: widget.focusNode,
-          onFocusChange: (focus) {},
+          onFocusChange: (focus) {
+            widget.controller.updateFocus(focus);
+          },
           child: UiKitView(
             viewType: "com.fanbook.yytextfield",
             creationParams: createParams(),
