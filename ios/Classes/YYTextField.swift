@@ -28,14 +28,6 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
         .foregroundColor: UIColor.blue,
     ]
     
-    func getAtAttributes() -> [NSAttributedString.Key: Any] {
-        return [
-            bindClassKey: UUID().uuidString,
-            .font: UIFont.systemFont(ofSize: 14),
-            .foregroundColor: UIColor.blue,
-        ]
-    }
-    
     init(frame: CGRect, viewId: Int64, args:Any?,  messenger: FlutterBinaryMessenger) {
         // 处理通信
         self.viewId = viewId
