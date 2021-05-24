@@ -56,7 +56,10 @@ class _MyHomePageState extends State<MyHomePage> {
               fontSize: 14
             ),
             placeHolder: '请输入....',
-            placeHolderStyle: Theme.of(context).textTheme.bodyText1,
+            placeHolderStyle: Theme.of(context).textTheme.bodyText1.copyWith(
+              color: Colors.redAccent,
+              fontSize: 18
+            ),
             maxLength: 5000,
           ),
           TextButton(

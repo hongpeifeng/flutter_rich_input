@@ -66,8 +66,8 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
         textView.backgroundColor = UIColor.clear
         textView.maxHeight = 142
         textView.minHeight = 40
-        textView.placeholder = placeHolder
-        textView.placeholderColor = placeHolderStyleAttr[.foregroundColor] as! UIColor
+        textView.attributedPlaceholder = NSAttributedString(string: placeHolder, attributes: placeHolderStyleAttr)
+        
     }
     
     func handlerMethodCall(_ call: FlutterMethodCall) {
@@ -122,7 +122,7 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
         textView.selectedRange = NSMakeRange(location + atName.count, 0)
         
         if (isOriginEmpty) { // 必要时重绘placeHolder，不设置textView不会刷新
-            textView.placeholder = textView.placeholder
+            textView.attributedPlaceholder = textView.attributedPlaceholder
         }
     }
     
@@ -149,7 +149,7 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
         textView.placeholder = textView.placeholder
         
         if (isOriginEmpty) { // 必要时重绘placeHolder，不设置textView不会刷新
-            textView.placeholder = textView.placeholder
+            textView.attributedPlaceholder = textView.attributedPlaceholder
         }
     }
     
