@@ -47,20 +47,23 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Column(
         children: [
-          YYTextField(
-            controller: _controller,
-            focusNode: _focusNode,
-            text: '1233',
-            textStyle: Theme.of(context).textTheme.bodyText2.copyWith(
-              color: Colors.black,
-              fontSize: 14
+          SizedBox(
+            width: 400,
+            child: YYTextField(
+              controller: _controller,
+              focusNode: _focusNode,
+              text: '1233',
+              textStyle: Theme.of(context).textTheme.bodyText2.copyWith(
+                color: Colors.black,
+                fontSize: 14
+              ),
+              placeHolder: '请输入....',
+              placeHolderStyle: Theme.of(context).textTheme.bodyText1.copyWith(
+                color: Colors.redAccent,
+                fontSize: 18
+              ),
+              maxLength: 5000,
             ),
-            placeHolder: '请输入....',
-            placeHolderStyle: Theme.of(context).textTheme.bodyText1.copyWith(
-              color: Colors.redAccent,
-              fontSize: 18
-            ),
-            maxLength: 5000,
           ),
           TextButton(
               onPressed: () {

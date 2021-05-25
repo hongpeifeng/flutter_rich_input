@@ -32,9 +32,11 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
         // 处理通信
         self.viewId = viewId
         // 页面初始化
+        let args = args as? [String: Any]
         var _frame = frame
         if _frame.size.width == 0 {
-            _frame = CGRect(x: frame.origin.x, y: frame.origin.y, width: UIScreen.main.bounds.size.width, height: 40)
+            let width = (args?["width"] as? CGFloat) ?? UIScreen.main.bounds.size.width
+            _frame = CGRect(x: frame.origin.x, y: frame.origin.y, width: width, height: 40)
         }
         super.init()
         
@@ -43,7 +45,6 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
             self?.handlerMethodCall(call)
         }
         
-        let args = args as? [String: Any]
         let initText = (args?["text"] as? String) ?? ""
         let textStyle = (args?["textStyle"] as? [String: Any])
         let placeHolderStyle = (args?["placeHolderStyle"] as? [String: Any])

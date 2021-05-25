@@ -65,6 +65,7 @@ class YYTextField extends StatefulWidget {
   final int maxLength;
   final FocusNode focusNode;
   final YYTextFieldController controller;
+  final double width;
 
   const YYTextField({
     @required this.controller,
@@ -74,6 +75,7 @@ class YYTextField extends StatefulWidget {
     this.placeHolder = '',
     this.placeHolderStyle,
     this.maxLength = 5000,
+    this.width,
   });
 
   @override
@@ -86,6 +88,7 @@ class _YYTextFieldState extends State<YYTextField> {
 
   Map createParams() {
     return {
+      'width': widget.width ?? MediaQuery.of(context).size.width,
       'text': widget.text,
       'textStyle': {
         'color': widget.textStyle.color.value,
