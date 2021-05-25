@@ -15,7 +15,6 @@ iOS TextField
   s.source_files = 'Classes/**/*'
 
   s.dependency 'Flutter'
-  s.dependency 'YYText'
   s.swift_version = '5.0'
 
   s.platform = :ios, '9.0'
