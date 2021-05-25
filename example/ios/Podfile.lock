@@ -2,16 +2,10 @@ PODS:
   - Flutter (1.0.0)
   - flutter_text_field (0.0.1):
     - Flutter
-    - YYText
-  - YYText (1.0.7)
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_text_field (from `.symlinks/plugins/flutter_text_field/ios`)
-
-SPEC REPOS:
-  trunk:
-    - YYText
 
 EXTERNAL SOURCES:
   Flutter:
@@ -21,8 +15,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
-  flutter_text_field: 7ca2e7911c491fcb40dd0032f3d976673b572a79
-  YYText: 5c461d709e24d55a182d1441c41dc639a18a4849
+  flutter_text_field: b61485568dde43a644afe7a1a9d6ecc110697305
 
 PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
 

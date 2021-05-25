@@ -16,6 +16,7 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
     var viewId:Int64 = -1
     var textView:GrowingTextView!
     var channel:FlutterMethodChannel!
+    var bakReplacementText: String = ""
     
     var defaultAttributes: [NSAttributedString.Key: Any] = [
         bindClassKey: "",
@@ -86,68 +87,11 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
             }
             break
         case "getText":
-            result(getText())
+            result(getData())
             break
         default:
             break
         }
-    }
-    
-    func getText() -> String {
-        var keys = Set<String>()
-        var ret = ""
-        textView.attributedText.enumerateAttributes(in: NSRange(location: 0, length: textView.attributedText.string.count), options: NSAttributedString.EnumerationOptions.longestEffectiveRangeNotRequired) { (attr, range, xxx) in
-            print("attr: \(attr), range:\(range), xxx: \(xxx)")
-            let keyString = getBindClassValue(attr: attr) ?? ""
-            if keyString.count == 0 {
-                ret.append(textView.attributedText.attributedSubstring(from: range).string)
-            } else {
-                if !keys.contains(keyString) {
-                    keys.insert(keyString)
-                    ret.append(getDataValue(attr: attr) ?? "")
-                }
-            }
-        }
-        return ret
-    }
-    
-    func insertBlock(name: String, data: String, textStyle: [String: Any]?, prefix:String = "") {
-        
-        if textView.maxLength != 0 && (name.count + 2 + textView.attributedText.string.count > textView.maxLength) {
-            return
-        }
-        
-        let isOriginEmpty = textView.text.isEmpty
-        
-        _ = self.textView(textView, shouldChangeTextIn: textView.selectedRange, replacementText: "")
-        
-        let atName = "\(prefix)\(name) "
-        
-        let str = NSMutableAttributedString(attributedString: textView.attributedText!)
-        
-        let location = textView.selectedRange.location
-        
-        var attr:[NSAttributedString.Key: Any] = textStyle2Attribute(textStyle: textStyle, defaultAttr: atAttributes)
-        attr[bindClassKey] = UUID().uuidString
-        attr[dataKey] = data
-        
-        str.insert(NSAttributedString(string: atName,attributes: attr), at: location)
-        
-        textView.attributedText = str
-        
-        textView.selectedRange = NSMakeRange(location + atName.count, 0)
-        
-        if (isOriginEmpty) { // 必要时重绘placeHolder，不设置textView不会刷新
-            textView.attributedPlaceholder = textView.attributedPlaceholder
-        }
-    }
-    
-    func insertAtString(name: String, data: String, textStyle: [String: Any]?) {
-        insertBlock(name: name, data: data, textStyle: textStyle, prefix: "@")
-    }
-    
-    func insertChannelString(name: String, data: String, textStyle: [String: Any]?) {
-        insertBlock(name: name, data: data, textStyle: textStyle, prefix: "#")
     }
     
     func view() -> UIView {
@@ -155,11 +99,17 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
     }
     
     func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
-        channel.invokeMethod("updateFocus", arguments: true)
+        updateFocus(focus: true)
         return true
     }
     
+    func textViewDidChange(_ textView: UITextView) {
+        updateValue()
+    }
+    
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool{
+        
+        bakReplacementText = text
         // 重置输入样式
         textView.typingAttributes = defaultAttributes
         // 输入文字

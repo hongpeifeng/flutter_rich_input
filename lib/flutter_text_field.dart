@@ -7,11 +7,56 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class YYTextFieldController {
+class YYTextEditingValue {
+  final String text;
+  final String data;
+  final TextRange selection;
+  final String inputText;
+
+  const YYTextEditingValue({
+    this.text = '',
+    this.data = '',
+    this.inputText = '',
+    this.selection = const TextRange.collapsed(0),
+  });
+
+  static const YYTextEditingValue empty = YYTextEditingValue();
+
+  YYTextEditingValue copyWith({
+    String text,
+    String data,
+    String inputText,
+    TextRange selection,
+  }) {
+    return YYTextEditingValue(
+      text: text ?? this.text,
+      data: data ?? this.data,
+      inputText: inputText ?? '',
+      selection: selection ?? this.selection,
+    );
+  }
+
+  static YYTextEditingValue fromJSON(Map encoded) {
+    if (encoded == null)
+      return YYTextEditingValue.empty;
+    return YYTextEditingValue(
+      text: encoded['text'] as String,
+      data: encoded['data'] as String,
+      selection: TextRange(
+        start: encoded['selection_start'] as int,
+        end: encoded['selection_end'] as int,
+      ),
+      inputText: encoded['input_text'] as String,
+    );
+  }
+
+}
+
+class YYTextFieldController extends ValueNotifier<YYTextEditingValue> {
   MethodChannel _channel;
   TextStyle _defaultRichTextStyle;
 
-  YYTextFieldController() {
+  YYTextFieldController() : super(YYTextEditingValue.empty) {
     _defaultRichTextStyle =
         TextStyle(color: Colors.lightBlueAccent, fontSize: 14, height: 1.17);
   }
@@ -58,6 +103,12 @@ class YYTextFieldController {
   Future updateFocus(bool focus) async {
     return _channel.invokeMethod("updateFocus", focus);
   }
+
+  @override
+  set value(YYTextEditingValue newValue) {
+    super.value = newValue;
+  }
+
 }
 
 class YYTextField extends StatefulWidget {
@@ -123,6 +174,11 @@ class _YYTextFieldState extends State<YYTextField> {
         } else {
           widget.focusNode.unfocus();
         }
+        break;
+      case 'updateValue':
+        final Map temp = call.arguments;
+        final value = YYTextEditingValue.fromJSON(temp);
+        widget.controller.value = value;
         break;
       default:
         break;

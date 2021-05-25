@@ -31,6 +31,16 @@ class _MyHomePageState extends State<MyHomePage> {
   int _viewId = 0;
   YYTextFieldController _controller = YYTextFieldController();
   FocusNode _focusNode = FocusNode();
+
+
+  @override
+  void initState() {
+    _controller.addListener(() {
+      print('value: ${_controller.value}');
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
