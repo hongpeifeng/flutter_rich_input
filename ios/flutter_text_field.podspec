@@ -16,7 +16,6 @@ iOS TextField
 
   s.dependency 'Flutter'
   s.dependency 'YYText'
-  s.dependency 'GrowingTextView', '0.7.2'
   s.swift_version = '5.0'
 
   s.platform = :ios, '9.0'

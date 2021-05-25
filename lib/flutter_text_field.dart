@@ -9,6 +9,17 @@ import 'package:flutter/services.dart';
 
 class YYTextFieldController {
   MethodChannel _channel;
+  TextStyle _defaultRichTextStyle;
+
+  YYTextFieldController() {
+    _defaultRichTextStyle =
+        TextStyle(color: Colors.lightBlueAccent, fontSize: 14, height: 1.17);
+  }
+
+  Future<String> get text async {
+    final String version = await _channel.invokeMethod('getText');
+    return version;
+  }
 
   void setViewId(String viewId) {
     if (_channel != null) return;
@@ -19,30 +30,23 @@ class YYTextFieldController {
     _channel.setMethodCallHandler(handler);
   }
 
-  Future insertAtName(String name, {TextStyle textStyle}) async {
-    textStyle ??= TextStyle(
-      color: Colors.lightBlueAccent,
-      fontSize: 14,
-      height: 1.17
-    );
-    return _channel.invokeMethod("insertAtName", {
-      'name': name,
-      'textStyle': {
-        'color': textStyle.color.value,
-        'fontSize': textStyle.fontSize,
-        'height': textStyle.height ?? 1.17
-      }
-    });
+  Future insertAtName(String name,
+      {String data = '', TextStyle textStyle}) async {
+    insertBlock(name, data: data, textStyle: textStyle, prefix: '@');
   }
 
-  Future insertChannelName(String name, {TextStyle textStyle}) async {
-    textStyle ??= TextStyle(
-        color: Colors.lightBlueAccent,
-        fontSize: 14,
-        height: 1.17
-    );
-    return _channel.invokeMethod("insertChannelName", {
+  Future insertChannelName(String name,
+      {String data = '', TextStyle textStyle}) async {
+    insertBlock(name, data: data, textStyle: textStyle, prefix: '#');
+  }
+
+  Future insertBlock(String name,
+      {String data = '', TextStyle textStyle, String prefix = ''}) {
+    textStyle ??= _defaultRichTextStyle;
+    return _channel.invokeMethod("insertBlock", {
       'name': name,
+      'data': data,
+      'prefix': prefix,
       'textStyle': {
         'color': textStyle.color.value,
         'fontSize': textStyle.fontSize,
@@ -54,7 +58,6 @@ class YYTextFieldController {
   Future updateFocus(bool focus) async {
     return _channel.invokeMethod("updateFocus", focus);
   }
-
 }
 
 class YYTextField extends StatefulWidget {
@@ -83,7 +86,6 @@ class YYTextField extends StatefulWidget {
 }
 
 class _YYTextFieldState extends State<YYTextField> {
-
   double _height = 40;
 
   Map createParams() {

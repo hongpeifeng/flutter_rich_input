@@ -7,9 +7,9 @@
 
 import Foundation
 import Flutter
-import GrowingTextView
 
 let bindClassKey = NSAttributedString.Key(rawValue: "BindClassKey")
+let dataKey = NSAttributedString.Key(rawValue: "data")
 
 class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
     
@@ -42,13 +42,14 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
         
         channel = FlutterMethodChannel(name: "com.fanbook.yytextfield_\(viewId)", binaryMessenger: messenger)
         channel.setMethodCallHandler { [weak self] (call, result) in
-            self?.handlerMethodCall(call)
+            self?.handlerMethodCall(call, result)
         }
         
         let initText = (args?["text"] as? String) ?? ""
         let textStyle = (args?["textStyle"] as? [String: Any])
         let placeHolderStyle = (args?["placeHolderStyle"] as? [String: Any])
         let placeHolder = (args?["placeHolder"] as? String) ?? ""
+        let maxLength = (args?["maxLength"] as? Int) ?? 5000
         defaultAttributes = textStyle2Attribute(textStyle: textStyle, defaultAttr: defaultAttributes)
         let placeHolderStyleAttr = textStyle2Attribute(textStyle: placeHolderStyle, defaultAttr: defaultAttributes)
         
@@ -60,23 +61,19 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
         textView.maxHeight = 142
         textView.minHeight = 40
         textView.attributedPlaceholder = NSAttributedString(string: placeHolder, attributes: placeHolderStyleAttr)
+        textView.maxLength = maxLength
         
     }
     
-    func handlerMethodCall(_ call: FlutterMethodCall) {
+    func handlerMethodCall(_ call: FlutterMethodCall, _ result: FlutterResult)  {
         switch call.method {
-        case "insertAtName":
+        case "insertBlock":
             if let args = call.arguments as? [String : Any] {
                 let name = (args["name"] as? String) ?? ""
+                let data = (args["data"] as? String) ?? ""
+                let prefix = (args["prefix"] as? String) ?? ""
                 let textStyle = (args["textStyle"] as? [String : Any]?) ?? [:]
-                appendAtString(name: name, textStyle: textStyle)
-            }
-            break
-        case "insertChannelName":
-            if let args = call.arguments as? [String : Any] {
-                let name = (args["name"] as? String) ?? ""
-                let textStyle = (args["textStyle"] as? [String : Any]?) ?? [:]
-                appendChannelString(name: name, textStyle: textStyle)
+                insertBlock(name: name, data: data, textStyle: textStyle, prefix: prefix)
             }
             break
         case "updateFocus":
@@ -88,28 +85,54 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
                 }
             }
             break
+        case "getText":
+            result(getText())
+            break
         default:
             break
         }
     }
     
+    func getText() -> String {
+        var keys = Set<String>()
+        var ret = ""
+        textView.attributedText.enumerateAttributes(in: NSRange(location: 0, length: textView.attributedText.string.count), options: NSAttributedString.EnumerationOptions.longestEffectiveRangeNotRequired) { (attr, range, xxx) in
+            print("attr: \(attr), range:\(range), xxx: \(xxx)")
+            let keyString = getBindClassValue(attr: attr) ?? ""
+            if keyString.count == 0 {
+                ret.append(textView.attributedText.attributedSubstring(from: range).string)
+            } else {
+                if !keys.contains(keyString) {
+                    keys.insert(keyString)
+                    ret.append(getDataValue(attr: attr) ?? "")
+                }
+            }
+        }
+        return ret
+    }
     
-    func appendAtString(name: String, textStyle: [String: Any]?) {
+    func insertBlock(name: String, data: String, textStyle: [String: Any]?, prefix:String = "") {
+        
+        if textView.maxLength != 0 && (name.count + 2 + textView.attributedText.string.count > textView.maxLength) {
+            return
+        }
+        
         let isOriginEmpty = textView.text.isEmpty
-            
+        
         _ = self.textView(textView, shouldChangeTextIn: textView.selectedRange, replacementText: "")
         
-        let atName = "@\(name) "
+        let atName = "\(prefix)\(name) "
         
         let str = NSMutableAttributedString(attributedString: textView.attributedText!)
-    
+        
         let location = textView.selectedRange.location
         
         var attr:[NSAttributedString.Key: Any] = textStyle2Attribute(textStyle: textStyle, defaultAttr: atAttributes)
         attr[bindClassKey] = UUID().uuidString
+        attr[dataKey] = data
         
         str.insert(NSAttributedString(string: atName,attributes: attr), at: location)
-    
+        
         textView.attributedText = str
         
         textView.selectedRange = NSMakeRange(location + atName.count, 0)
@@ -119,31 +142,12 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
         }
     }
     
-    func appendChannelString(name: String, textStyle: [String: Any]?) {
-        let isOriginEmpty = textView.text.isEmpty
-        
-        _ = self.textView(textView, shouldChangeTextIn: textView.selectedRange, replacementText: "")
-        
-        let atName = "#\(name) "
-        
-        let str = NSMutableAttributedString(attributedString: textView.attributedText!)
+    func insertAtString(name: String, data: String, textStyle: [String: Any]?) {
+        insertBlock(name: name, data: data, textStyle: textStyle, prefix: "@")
+    }
     
-        let location = textView.selectedRange.location
-        
-        var attr:[NSAttributedString.Key: Any] = textStyle2Attribute(textStyle: textStyle, defaultAttr: atAttributes)
-        attr[bindClassKey] = UUID().uuidString
-        
-        str.insert(NSAttributedString(string: atName,attributes: attr), at: location)
-    
-        textView.attributedText = str
-        
-        textView.selectedRange = NSMakeRange(location + atName.count, 0)
-        
-        textView.placeholder = textView.placeholder
-        
-        if (isOriginEmpty) { // 必要时重绘placeHolder，不设置textView不会刷新
-            textView.attributedPlaceholder = textView.attributedPlaceholder
-        }
+    func insertChannelString(name: String, data: String, textStyle: [String: Any]?) {
+        insertBlock(name: name, data: data, textStyle: textStyle, prefix: "#")
     }
     
     func view() -> UIView {
@@ -197,7 +201,7 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
             }
             // 尾部添加
             else if (range.length == 0 && text.count > 0)
-                && (range.location == _range.location + count || range.location == _range.location + count + 1) {
+                        && (range.location == _range.location + count || range.location == _range.location + count + 1) {
                 return true
             }
             // 正常删除，并去掉样式
@@ -222,7 +226,7 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
             textView.frame = CGRect(x: frame.origin.x, y: frame.origin.y, width: frame.size.width, height: height)
         }
     }
-
+    
 }
 
 
@@ -245,6 +249,18 @@ extension YYTextField {
 
 // MARK: - Range 处理
 extension YYTextField {
+    
+    func getDataValue(attr: [NSAttributedString.Key : Any]) -> String? {
+        
+        func isDataClass(attr: [NSAttributedString.Key : Any]) -> Bool {
+            return attr.keys.contains(dataKey) && (attr[dataKey] as! String).count > 0
+        }
+        
+        if !isDataClass(attr: attr) {
+            return nil
+        }
+        return attr[dataKey] as? String
+    }
     
     func getBindClassValue(attr: [NSAttributedString.Key : Any]) -> String? {
         

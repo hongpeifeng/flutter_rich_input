@@ -67,14 +67,20 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           TextButton(
               onPressed: () {
-                _controller.insertAtName("周大蝠");
+                _controller.insertAtName("周大蝠",data: "@{dfdsfsdfsdgdf}");
               },
               child: Text('插入@')),
           TextButton(
               onPressed: () {
-                _controller.insertChannelName('蝠道');
+                _controller.insertChannelName('蝠道', data: "#{fdsgdfgdfgdass}");
               },
               child: Text('插入#')),
+          TextButton(
+              onPressed: () async {
+                final text = await _controller.text;
+                print("text: $text");
+              },
+              child: Text('getText')),
         ],
       ),
     );
