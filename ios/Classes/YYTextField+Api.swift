@@ -19,38 +19,26 @@ extension YYTextField {
     }
 
     func insertBlock(name: String, data: String, textStyle: [String: Any]?, prefix:String = "") {
-        
-        if textView.maxLength != 0 && (name.count + 2 + textView.attributedText.string.count > textView.maxLength) {
-            return
+        let inputText = "\(prefix)\(name) "
+        editText(inputText: inputText) {
+            
+            let atName = inputText
+            
+            let str = NSMutableAttributedString(attributedString: textView.attributedText!)
+            
+            let location = textView.selectedRange.location
+            
+            var attr:[NSAttributedString.Key: Any] = textStyle2Attribute(textStyle: textStyle, defaultAttr: atAttributes)
+            attr[bindClassKey] = UUID().uuidString
+            attr[dataKey] = data
+            
+            str.insert(NSAttributedString(string: atName,attributes: attr), at: location)
+            
+            textView.attributedText = str
+            
+            textView.selectedRange = NSMakeRange(location + atName.count, 0)
+            
         }
-        
-        let isOriginEmpty = textView.text.isEmpty
-        
-        _ = self.textView(textView, shouldChangeTextIn: textView.selectedRange, replacementText: "")
-        
-        let atName = "\(prefix)\(name) "
-        
-        let str = NSMutableAttributedString(attributedString: textView.attributedText!)
-        
-        let location = textView.selectedRange.location
-        
-        var attr:[NSAttributedString.Key: Any] = textStyle2Attribute(textStyle: textStyle, defaultAttr: atAttributes)
-        attr[bindClassKey] = UUID().uuidString
-        attr[dataKey] = data
-        
-        str.insert(NSAttributedString(string: atName,attributes: attr), at: location)
-        
-        textView.attributedText = str
-        
-        textView.selectedRange = NSMakeRange(location + atName.count, 0)
-        
-        if (isOriginEmpty) { // 必要时重绘placeHolder，不设置textView不会刷新
-            textView.attributedPlaceholder = textView.attributedPlaceholder
-        }
-        
-        bakReplacementText = atName
-        // 更新一下数据
-        updateValue()
     }
     
     
@@ -72,7 +60,6 @@ extension YYTextField {
         var keys = Set<String>()
         var ret = ""
         textView.attributedText.enumerateAttributes(in: NSRange(location: 0, length: textView.attributedText.string.count), options: NSAttributedString.EnumerationOptions.longestEffectiveRangeNotRequired) { (attr, range, xxx) in
-            print("attr: \(attr), range:\(range), xxx: \(xxx)")
             let keyString = getBindClassValue(attr: attr) ?? ""
             if keyString.count == 0 {
                 ret.append(textView.attributedText.attributedSubstring(from: range).string)
@@ -91,14 +78,33 @@ extension YYTextField {
     }
     
     func replace(text: String, range: NSRange) {
-        let str = NSMutableAttributedString(attributedString: textView.attributedText!)
-        str.replaceCharacters(in: range, with: text)
-        textView.attributedText = str
-        textView.selectedRange = NSRange(location: range.location, length: 0)
+        if range.location + range.length > text.count {
+            return
+        }
+        editText(inputText: text, replaceLength: range.length) {
+            let str = NSMutableAttributedString(attributedString: textView.attributedText!)
+            str.replaceCharacters(in: range, with: text)
+            textView.attributedText = str
+            textView.selectedRange = NSRange(location: range.location + text.count, length: 0)
+        }
     }
     
     func insertText(text: String) {
-        if textView.maxLength != 0 && (text.count + textView.attributedText.string.count > textView.maxLength) {
+        editText(inputText: text) {
+            let str = NSMutableAttributedString(attributedString: textView.attributedText!)
+            
+            let location = textView.selectedRange.location
+            
+            str.insert(NSAttributedString(string: text,attributes: defaultAttributes), at: location)
+            
+            textView.attributedText = str
+            
+            textView.selectedRange = NSMakeRange(location + text.count, 0)
+        }
+    }
+    
+    func editText(inputText:String, replaceLength:Int = 0, _ block:()->()) {
+        if textView.maxLength != 0 && (inputText.count - replaceLength + textView.attributedText.string.count > textView.maxLength) {
             return
         }
         
@@ -106,21 +112,13 @@ extension YYTextField {
         
         _ = self.textView(textView, shouldChangeTextIn: textView.selectedRange, replacementText: "")
         
-        let str = NSMutableAttributedString(attributedString: textView.attributedText!)
-        
-        let location = textView.selectedRange.location
-        
-        str.insert(NSAttributedString(string: text,attributes: defaultAttributes), at: location)
-        
-        textView.attributedText = str
-        
-        textView.selectedRange = NSMakeRange(location + text.count, 0)
+        block()
         
         if (isOriginEmpty) { // 必要时重绘placeHolder，不设置textView不会刷新
             textView.attributedPlaceholder = textView.attributedPlaceholder
         }
         
-        bakReplacementText = text
+        bakReplacementText = inputText
         // 更新一下数据
         updateValue()
     }

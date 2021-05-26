@@ -186,13 +186,11 @@ class _YYTextFieldState extends State<YYTextField> {
   Future<void> _handlerCall(MethodCall call) async {
     switch (call.method) {
       case 'updateHeight':
-        print("flutter height: $call.arguments");
         setState(() {
           _height = call.arguments ?? 40;
         });
         break;
       case 'updateFocus':
-        print("updateFocus: ${call.arguments}");
         final focus = call.arguments ?? false;
         if (focus) {
           widget.focusNode.requestFocus();
