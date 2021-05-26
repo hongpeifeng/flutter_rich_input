@@ -32,7 +32,6 @@ class _MyHomePageState extends State<MyHomePage> {
   YYTextFieldController _controller = YYTextFieldController();
   FocusNode _focusNode = FocusNode();
 
-
   @override
   void initState() {
     _controller.addListener(() {
@@ -63,21 +62,21 @@ class _MyHomePageState extends State<MyHomePage> {
               controller: _controller,
               focusNode: _focusNode,
               text: '1233',
-              textStyle: Theme.of(context).textTheme.bodyText2.copyWith(
-                color: Colors.black,
-                fontSize: 14
-              ),
+              textStyle: Theme.of(context)
+                  .textTheme
+                  .bodyText2
+                  .copyWith(color: Colors.black, fontSize: 14),
               placeHolder: '请输入....',
-              placeHolderStyle: Theme.of(context).textTheme.bodyText1.copyWith(
-                color: Colors.redAccent,
-                fontSize: 18
-              ),
+              placeHolderStyle: Theme.of(context)
+                  .textTheme
+                  .bodyText1
+                  .copyWith(color: Colors.redAccent, fontSize: 18),
               maxLength: 5000,
             ),
           ),
           TextButton(
               onPressed: () {
-                _controller.insertAtName("周大蝠",data: "@{dfdsfsdfsdgdf}");
+                _controller.insertAtName("周大蝠", data: "@{dfdsfsdfsdgdf}");
               },
               child: Text('插入@')),
           TextButton(
@@ -87,10 +86,19 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Text('插入#')),
           TextButton(
               onPressed: () async {
-                final text = await _controller.text;
-                print("text: $text");
+                _controller.replace('321', TextRange(start: 2,end: 3));
               },
-              child: Text('getText')),
+              child: Text('replace')),
+          TextButton(
+              onPressed: () async {
+                _controller.setText('dasdasadsafds');
+              },
+              child: Text('setText')),
+          TextButton(
+              onPressed: () async {
+                _controller.clear();
+              },
+              child: Text('clear')),
         ],
       ),
     );

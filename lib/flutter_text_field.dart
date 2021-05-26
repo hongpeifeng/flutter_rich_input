@@ -54,6 +54,12 @@ class YYTextFieldController extends ValueNotifier<YYTextEditingValue> {
   MethodChannel _channel;
   TextStyle _defaultRichTextStyle;
   String get text => value.text;
+  set text(String newText) {
+    value = value.copyWith(
+      text: newText,
+      selection: const TextSelection.collapsed(offset: -1),
+    );
+  }
   String get data => value.data;
 
   YYTextFieldController() : super(YYTextEditingValue.empty) {
@@ -97,6 +103,26 @@ class YYTextFieldController extends ValueNotifier<YYTextEditingValue> {
 
   Future updateFocus(bool focus) async {
     return _channel.invokeMethod("updateFocus", focus);
+  }
+
+  Future replace(String text, TextRange range) async {
+    return _channel.invokeMethod("replace", {
+      'text': text,
+      'selection_start': range.start,
+      'selection_end': range.end,
+    });
+  }
+
+  Future replaceAll(String text) async {
+    return setText(text);
+  }
+
+  Future clear() async {
+    return setText('');
+  }
+
+  Future setText(String text) async {
+    return _channel.invokeMethod("setText", text);
   }
 
   @override

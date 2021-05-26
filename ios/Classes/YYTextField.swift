@@ -86,8 +86,18 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
                 }
             }
             break
-        case "getText":
-            result(getData())
+        case "replace":
+            if let args = call.arguments as? [String : Any] {
+                let text = (args["text"] as? String) ?? ""
+                let selectionStart = (args["selection_start"] as? Int) ?? 0
+                let selectionEnd = (args["selection_end"] as? Int) ?? selectionStart
+                replace(text: text, range: NSRange(location: selectionStart, length: selectionEnd - selectionStart))
+            }
+            break
+        case "setText":
+            if let text = call.arguments as? String {
+                setText(text: text)
+            }
             break
         default:
             break

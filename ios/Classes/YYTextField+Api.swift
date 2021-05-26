@@ -86,4 +86,15 @@ extension YYTextField {
         return ret
     }
     
+    func setText(text: String) {
+        textView.attributedText = NSAttributedString(string: text, attributes: defaultAttributes)
+    }
+    
+    func replace(text: String, range: NSRange) {
+        let str = NSMutableAttributedString(attributedString: textView.attributedText!)
+        str.replaceCharacters(in: range, with: text)
+        textView.attributedText = str
+        textView.selectedRange = NSRange(location: range.location, length: 0)
+    }
+    
 }
