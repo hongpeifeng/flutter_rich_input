@@ -55,6 +55,7 @@ class YYTextFieldController extends ValueNotifier<YYTextEditingValue> {
   TextStyle _defaultRichTextStyle;
   String get text => value.text;
   set text(String newText) {
+    setText(newText);
     value = value.copyWith(
       text: newText,
       selection: const TextSelection.collapsed(offset: -1),
