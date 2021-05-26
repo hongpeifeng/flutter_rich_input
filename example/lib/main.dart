@@ -99,6 +99,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 _controller.clear();
               },
               child: Text('clear')),
+          TextButton(
+              onPressed: () async {
+                _controller.insertText('abc');
+              },
+              child: Text('insertText')),
         ],
       ),
     );

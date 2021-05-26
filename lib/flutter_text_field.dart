@@ -77,6 +77,10 @@ class YYTextFieldController extends ValueNotifier<YYTextEditingValue> {
     _channel.setMethodCallHandler(handler);
   }
 
+  Future insertText(String text) async {
+    return _channel.invokeMethod("insertText", text);
+  }
+
   Future insertAtName(String name,
       {String data = '', TextStyle textStyle}) async {
     insertBlock(name, data: data, textStyle: textStyle, prefix: '@');

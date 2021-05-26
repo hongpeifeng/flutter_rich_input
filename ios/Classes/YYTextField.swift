@@ -77,6 +77,11 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
                 insertBlock(name: name, data: data, textStyle: textStyle, prefix: prefix)
             }
             break
+        case "insertText":
+            if let text = call.arguments as? String {
+                insertText(text: text)
+            }
+            break
         case "updateFocus":
             if let focus = call.arguments as? Bool {
                 if focus {

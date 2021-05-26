@@ -97,4 +97,32 @@ extension YYTextField {
         textView.selectedRange = NSRange(location: range.location, length: 0)
     }
     
+    func insertText(text: String) {
+        if textView.maxLength != 0 && (text.count + textView.attributedText.string.count > textView.maxLength) {
+            return
+        }
+        
+        let isOriginEmpty = textView.text.isEmpty
+        
+        _ = self.textView(textView, shouldChangeTextIn: textView.selectedRange, replacementText: "")
+        
+        let str = NSMutableAttributedString(attributedString: textView.attributedText!)
+        
+        let location = textView.selectedRange.location
+        
+        str.insert(NSAttributedString(string: text,attributes: defaultAttributes), at: location)
+        
+        textView.attributedText = str
+        
+        textView.selectedRange = NSMakeRange(location + text.count, 0)
+        
+        if (isOriginEmpty) { // 必要时重绘placeHolder，不设置textView不会刷新
+            textView.attributedPlaceholder = textView.attributedPlaceholder
+        }
+        
+        bakReplacementText = text
+        // 更新一下数据
+        updateValue()
+    }
+    
 }
