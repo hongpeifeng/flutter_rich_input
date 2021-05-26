@@ -63,8 +63,8 @@ class YYTextFieldController extends ValueNotifier<YYTextEditingValue> {
   }
   String get data => value.data;
 
-  YYTextFieldController() : super(YYTextEditingValue.empty) {
-    _defaultRichTextStyle =
+  YYTextFieldController({TextStyle defaultRichTextStyle}) : super(YYTextEditingValue.empty) {
+    _defaultRichTextStyle = defaultRichTextStyle ??
         TextStyle(color: Colors.lightBlueAccent, fontSize: 14, height: 1.17);
   }
 
