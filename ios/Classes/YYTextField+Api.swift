@@ -74,7 +74,14 @@ extension YYTextField {
     }
     
     func setText(text: String) {
+        let isOriginEmpty = textView.text.isEmpty
         textView.attributedText = NSAttributedString(string: text, attributes: defaultAttributes)
+        if (isOriginEmpty) { // 必要时重绘placeHolder，不设置textView不会刷新
+            textView.attributedPlaceholder = textView.attributedPlaceholder
+        }
+        bakReplacementText = text
+        // 更新一下数据
+        updateValue()
     }
     
     func replace(text: String, range: NSRange) {
@@ -121,6 +128,10 @@ extension YYTextField {
         bakReplacementText = inputText
         // 更新一下数据
         updateValue()
+    }
+    
+    func submitText() {
+        channel.invokeMethod("submitText", arguments: textView.text)
     }
     
 }

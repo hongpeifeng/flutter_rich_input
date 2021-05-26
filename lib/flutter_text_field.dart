@@ -137,14 +137,18 @@ class YYTextFieldController extends ValueNotifier<YYTextEditingValue> {
 }
 
 class YYTextField extends StatefulWidget {
+  final YYTextFieldController controller;
+  final FocusNode focusNode;
   final String text;
   final TextStyle textStyle;
   final String placeHolder;
   final TextStyle placeHolderStyle;
   final int maxLength;
-  final FocusNode focusNode;
-  final YYTextFieldController controller;
   final double width;
+  final VoidCallback onEditingComplete;
+  final Function(String) onSubmitted;
+  final Function(String) onChanged;
+  final bool autoFocus;
 
   const YYTextField({
     @required this.controller,
@@ -155,6 +159,10 @@ class YYTextField extends StatefulWidget {
     this.placeHolderStyle,
     this.maxLength = 5000,
     this.width,
+    this.onEditingComplete,
+    this.onSubmitted,
+    this.onChanged,
+    this.autoFocus = false,
   });
 
   @override
@@ -180,6 +188,7 @@ class _YYTextFieldState extends State<YYTextField> {
         'height': widget.placeHolderStyle.height ?? 1.35
       },
       'maxLength': widget.maxLength,
+      'done': widget.onEditingComplete != null || widget.onSubmitted != null
     };
   }
 
@@ -202,10 +211,25 @@ class _YYTextFieldState extends State<YYTextField> {
         final Map temp = call.arguments;
         final value = YYTextEditingValue.fromJSON(temp);
         widget.controller.value = value;
+        widget.onChanged?.call(value.text);
+        break;
+      case 'submitText':
+        final text = call.arguments ?? '';
+        widget.onSubmitted?.call(text);
+        widget.onEditingComplete?.call();
         break;
       default:
         break;
     }
+  }
+
+  @override
+  void initState() {
+    if (widget.autoFocus)
+        Future.delayed(const Duration(milliseconds: 300)).then((_) {
+          widget.controller.updateFocus(true);
+        });
+    super.initState();
   }
 
   @override

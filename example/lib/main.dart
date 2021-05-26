@@ -62,6 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
               controller: _controller,
               focusNode: _focusNode,
               text: '1233',
+              autoFocus: true,
               textStyle: Theme.of(context)
                   .textTheme
                   .bodyText2
@@ -72,6 +73,15 @@ class _MyHomePageState extends State<MyHomePage> {
                   .bodyText1
                   .copyWith(color: Colors.redAccent, fontSize: 18),
               maxLength: 5000,
+              onChanged: (str) {
+                print('onChanged: $str');
+              },
+              onSubmitted: (str) {
+                print('onSubmitted: $str');
+              },
+              onEditingComplete: () {
+                print('onEditingComplete');
+              },
             ),
           ),
           TextButton(

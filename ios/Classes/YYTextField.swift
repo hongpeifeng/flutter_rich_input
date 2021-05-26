@@ -51,6 +51,7 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
         let placeHolderStyle = (args?["placeHolderStyle"] as? [String: Any])
         let placeHolder = (args?["placeHolder"] as? String) ?? ""
         let maxLength = (args?["maxLength"] as? Int) ?? 5000
+        let done = (args?["done"] as? Bool) ?? false
         defaultAttributes = textStyle2Attribute(textStyle: textStyle, defaultAttr: defaultAttributes)
         let placeHolderStyleAttr = textStyle2Attribute(textStyle: placeHolderStyle, defaultAttr: defaultAttributes)
         
@@ -63,7 +64,7 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
         textView.minHeight = 40
         textView.attributedPlaceholder = NSAttributedString(string: placeHolder, attributes: placeHolderStyleAttr)
         textView.maxLength = maxLength
-        
+        if done { textView.returnKeyType = .done }
     }
     
     func handlerMethodCall(_ call: FlutterMethodCall, _ result: FlutterResult)  {
@@ -122,7 +123,14 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
         updateValue()
     }
     
+    
+    
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool{
+        
+        if text == "\n" && textView.returnKeyType == .done { 
+            submitText()
+            return false
+        }
         
         bakReplacementText = text
         // 重置输入样式
