@@ -85,7 +85,7 @@ extension YYTextField {
     }
     
     func replace(text: String, range: NSRange) {
-        if range.location + range.length > text.count {
+        if range.location + range.length > textView.attributedText.string.count {
             return
         }
         editText(inputText: text, replaceLength: range.length) {
