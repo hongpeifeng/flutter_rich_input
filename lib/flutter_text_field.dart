@@ -37,8 +37,7 @@ class YYTextEditingValue {
   }
 
   static YYTextEditingValue fromJSON(Map encoded) {
-    if (encoded == null)
-      return YYTextEditingValue.empty;
+    if (encoded == null) return YYTextEditingValue.empty;
     return YYTextEditingValue(
       text: encoded['text'] as String,
       data: encoded['data'] as String,
@@ -49,21 +48,17 @@ class YYTextEditingValue {
       inputText: encoded['input_text'] as String,
     );
   }
-
 }
 
 class YYTextFieldController extends ValueNotifier<YYTextEditingValue> {
   MethodChannel _channel;
   TextStyle _defaultRichTextStyle;
+  String get text => value.text;
+  String get data => value.data;
 
   YYTextFieldController() : super(YYTextEditingValue.empty) {
     _defaultRichTextStyle =
         TextStyle(color: Colors.lightBlueAccent, fontSize: 14, height: 1.17);
-  }
-
-  Future<String> get text async {
-    final String version = await _channel.invokeMethod('getText');
-    return version;
   }
 
   void setViewId(String viewId) {
@@ -108,7 +103,6 @@ class YYTextFieldController extends ValueNotifier<YYTextEditingValue> {
   set value(YYTextEditingValue newValue) {
     super.value = newValue;
   }
-
 }
 
 class YYTextField extends StatefulWidget {
