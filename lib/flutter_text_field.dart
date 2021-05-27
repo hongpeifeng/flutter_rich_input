@@ -83,12 +83,12 @@ class YYTextFieldController extends ValueNotifier<YYTextEditingValue> {
 
   Future insertAtName(String name,
       {String data = '', TextStyle textStyle}) async {
-    insertBlock(name, data: data, textStyle: textStyle, prefix: '@');
+    insertBlock('$name ', data: data, textStyle: textStyle, prefix: '@');
   }
 
   Future insertChannelName(String name,
       {String data = '', TextStyle textStyle}) async {
-    insertBlock(name, data: data, textStyle: textStyle, prefix: '#');
+    insertBlock('$name ', data: data, textStyle: textStyle, prefix: '#');
   }
 
   Future insertBlock(String name,

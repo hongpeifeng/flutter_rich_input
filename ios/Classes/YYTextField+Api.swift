@@ -19,8 +19,8 @@ extension YYTextField {
     }
 
     func insertBlock(name: String, data: String, textStyle: [String: Any]?, prefix:String = "") {
-        let inputText = "\(prefix)\(name) "
-        editText(inputText: inputText) {
+        let inputText = "\(prefix)\(name)"
+        editText(inputText: inputText) {_ in
             
             let atName = inputText
             
@@ -85,10 +85,13 @@ extension YYTextField {
     }
     
     func replace(text: String, range: NSRange) {
-        if range.location + range.length > textView.attributedText.string.count {
+        if range.location < 0 || range.location + range.length > textView.attributedText.string.count {
             return
         }
-        editText(inputText: text, replaceLength: range.length) {
+        editText(inputText: text, replaceLength: range.length, range: range) { needchange in
+            if !needchange {
+                return
+            }
             let str = NSMutableAttributedString(attributedString: textView.attributedText!)
             str.replaceCharacters(in: range, with: text)
             textView.attributedText = str
@@ -97,7 +100,7 @@ extension YYTextField {
     }
     
     func insertText(text: String) {
-        editText(inputText: text) {
+        editText(inputText: text) {_ in
             let str = NSMutableAttributedString(attributedString: textView.attributedText!)
             
             let location = textView.selectedRange.location
@@ -110,16 +113,17 @@ extension YYTextField {
         }
     }
     
-    func editText(inputText:String, replaceLength:Int = 0, _ block:()->()) {
+    func editText(inputText:String, replaceLength:Int = 0, range: NSRange? = nil, _ block:(Bool)->()) {
         if textView.maxLength != 0 && (inputText.count - replaceLength + textView.attributedText.string.count > textView.maxLength) {
             return
         }
         
         let isOriginEmpty = textView.text.isEmpty
         
-        _ = self.textView(textView, shouldChangeTextIn: textView.selectedRange, replacementText: "")
+
+        let ret = self.textView(textView, shouldChangeTextIn: range ?? textView.selectedRange, replacementText: "")
         
-        block()
+        block(ret)
         
         if (isOriginEmpty) { // 必要时重绘placeHolder，不设置textView不会刷新
             textView.attributedPlaceholder = textView.attributedPlaceholder
