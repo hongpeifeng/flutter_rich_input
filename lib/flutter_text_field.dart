@@ -53,7 +53,9 @@ class YYTextEditingValue {
 class YYTextFieldController extends ValueNotifier<YYTextEditingValue> {
   MethodChannel _channel;
   TextStyle _defaultRichTextStyle;
+
   String get text => value.text;
+
   set text(String newText) {
     setText(newText);
     value = value.copyWith(
@@ -61,9 +63,11 @@ class YYTextFieldController extends ValueNotifier<YYTextEditingValue> {
       selection: const TextSelection.collapsed(offset: -1),
     );
   }
+
   String get data => value.data;
 
-  YYTextFieldController({TextStyle defaultRichTextStyle}) : super(YYTextEditingValue.empty) {
+  YYTextFieldController({TextStyle defaultRichTextStyle})
+      : super(YYTextEditingValue.empty) {
     _defaultRichTextStyle = defaultRichTextStyle ??
         TextStyle(color: Colors.lightBlueAccent, fontSize: 14, height: 1.17);
   }
@@ -116,6 +120,10 @@ class YYTextFieldController extends ValueNotifier<YYTextEditingValue> {
       'selection_start': range.start,
       'selection_end': range.end,
     });
+  }
+
+  Future setAlpha(double alpha) async {
+    return _channel.invokeMethod("setAlpha", alpha);
   }
 
   Future replaceAll(String text) async {
@@ -174,7 +182,10 @@ class _YYTextFieldState extends State<YYTextField> {
 
   Map createParams() {
     return {
-      'width': widget.width ?? MediaQuery.of(context).size.width,
+      'width': widget.width ?? MediaQuery
+          .of(context)
+          .size
+          .width,
       'text': widget.text,
       'textStyle': {
         'color': widget.textStyle.color.value,
@@ -226,9 +237,9 @@ class _YYTextFieldState extends State<YYTextField> {
   @override
   void initState() {
     if (widget.autoFocus)
-        Future.delayed(const Duration(milliseconds: 300)).then((_) {
-          widget.controller.updateFocus(true);
-        });
+      Future.delayed(const Duration(milliseconds: 300)).then((_) {
+        widget.controller.updateFocus(true);
+      });
     super.initState();
   }
 
