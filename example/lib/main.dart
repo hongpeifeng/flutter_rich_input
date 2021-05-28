@@ -96,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Text('插入#')),
           TextButton(
               onPressed: () async {
-                _controller.replace('123', TextRange(start: 2,end: 3));
+                _controller.replace('123', TextRange(start: 2, end: 3));
               },
               child: Text('replace')),
           TextButton(
@@ -116,7 +116,11 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Text('insertText')),
           TextButton(
               onPressed: () async {
-                _controller.replace('', TextRange(start: _controller.text.length - 1, end: _controller.text.length));
+                _controller.replace(
+                    '',
+                    TextRange(
+                        start: _controller.text.length - 1,
+                        end: _controller.text.length));
               },
               child: Text('delete 最后一个字符')),
         ],

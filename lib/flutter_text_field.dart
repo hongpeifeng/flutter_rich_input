@@ -4,7 +4,10 @@
 // directory. You can also find a detailed instruction on how to add platforms in the `pubspec.yaml` at https://flutter.dev/docs/development/packages-and-plugins/developing-packages#plugin-platforms.
 
 import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
 class YYTextEditingValue {
@@ -61,9 +64,11 @@ class YYTextFieldController extends ValueNotifier<YYTextEditingValue> {
       selection: const TextSelection.collapsed(offset: -1),
     );
   }
+
   String get data => value.data;
 
-  YYTextFieldController({TextStyle defaultRichTextStyle}) : super(YYTextEditingValue.empty) {
+  YYTextFieldController({TextStyle defaultRichTextStyle})
+      : super(YYTextEditingValue.empty) {
     _defaultRichTextStyle = defaultRichTextStyle ??
         TextStyle(color: Colors.lightBlueAccent, fontSize: 14, height: 1.17);
   }
@@ -172,6 +177,8 @@ class YYTextField extends StatefulWidget {
 class _YYTextFieldState extends State<YYTextField> {
   double _height = 40;
 
+  final viewType = 'com.fanbook.yytextfield';
+
   Map createParams() {
     return {
       'width': widget.width ?? MediaQuery.of(context).size.width,
@@ -226,9 +233,9 @@ class _YYTextFieldState extends State<YYTextField> {
   @override
   void initState() {
     if (widget.autoFocus)
-        Future.delayed(const Duration(milliseconds: 300)).then((_) {
-          widget.controller.updateFocus(true);
-        });
+      Future.delayed(const Duration(milliseconds: 1000)).then((_) {
+        widget.controller.updateFocus(true);
+      });
     super.initState();
   }
 
@@ -243,7 +250,7 @@ class _YYTextFieldState extends State<YYTextField> {
             widget.controller.updateFocus(focus);
           },
           child: UiKitView(
-            viewType: "com.fanbook.yytextfield",
+            viewType: viewType,
             creationParams: createParams(),
             creationParamsCodec: const StandardMessageCodec(),
             onPlatformViewCreated: (viewId) {
@@ -253,7 +260,45 @@ class _YYTextFieldState extends State<YYTextField> {
           ),
         ),
       );
+    } else if (Platform.isAndroid) {
+      return SizedBox(
+        height: _height,
+        child: Focus(
+          focusNode: widget.focusNode,
+          onFocusChange: (focus) {
+            // widget.controller.updateFocus(focus);
+          },
+          child: PlatformViewLink(
+            viewType: viewType,
+            surfaceFactory: (context, controller) {
+              return AndroidViewSurface(
+                controller: controller,
+                gestureRecognizers: const <
+                    Factory<OneSequenceGestureRecognizer>>{},
+                hitTestBehavior: PlatformViewHitTestBehavior.opaque,
+              );
+            },
+            onCreatePlatformView: (params) {
+              return PlatformViewsService.initSurfaceAndroidView(
+                id: params.id,
+                viewType: viewType,
+                layoutDirection: TextDirection.ltr,
+                creationParams: createParams(),
+                creationParamsCodec: const StandardMessageCodec(),
+              )
+                // ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
+                ..addOnPlatformViewCreatedListener((id) {
+                  params.onPlatformViewCreated(id);
+                  widget.controller.setViewId('$id');
+                  widget.controller.setMethodCallHandler(_handlerCall);
+                })
+                ..create();
+            },
+          ),
+        ),
+      );
+    } else {
+      return Text('暂不支持该平台');
     }
-    return Text('暂不支持该平台');
   }
 }
