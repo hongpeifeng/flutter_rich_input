@@ -155,6 +155,7 @@ class YYTextField extends StatefulWidget {
   final TextStyle placeHolderStyle;
   final int maxLength;
   final double width;
+  final double height;
   final VoidCallback onEditingComplete;
   final Function(String) onSubmitted;
   final Function(String) onChanged;
@@ -169,6 +170,7 @@ class YYTextField extends StatefulWidget {
     this.placeHolderStyle,
     this.maxLength = 5000,
     this.width,
+    this.height,
     this.onEditingComplete,
     this.onSubmitted,
     this.onChanged,
@@ -188,6 +190,8 @@ class _YYTextFieldState extends State<YYTextField> {
           .of(context)
           .size
           .width,
+
+      'height': widget.height,
       'text': widget.text,
       'textStyle': {
         'color': widget.textStyle.color.value,
