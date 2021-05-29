@@ -36,7 +36,7 @@ class YYTextField: NSObject, FlutterPlatformView, GrowingTextViewDelegate {
         var _frame = frame
         if _frame.size.width == 0 {
             let width = (args?["width"] as? CGFloat) ?? UIScreen.main.bounds.size.width
-            _frame = CGRect(x: frame.origin.x, y: frame.origin.y, width: width, height: 40)
+            _frame = CGRect(x: frame.origin.x, y: frame.origin.y, width: width, height: 32)
         }
         super.init()
 
@@ -51,16 +51,17 @@ class YYTextField: NSObject, FlutterPlatformView, GrowingTextViewDelegate {
         let placeHolder = (args?["placeHolder"] as? String) ?? ""
         let maxLength = (args?["maxLength"] as? Int) ?? 5000
         let done = (args?["done"] as? Bool) ?? false
+        let height = (args?["height"] as? CGFloat) ?? 32
         defaultAttributes = textStyle2Attribute(textStyle: textStyle, defaultAttr: defaultAttributes)
         let placeHolderStyleAttr = textStyle2Attribute(textStyle: placeHolderStyle, defaultAttr: defaultAttributes)
 
         textView = GrowingTextView(frame: _frame)
         textView.attributedText = NSMutableAttributedString(string: initText, attributes: defaultAttributes)
-        textView.textContainerInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+        textView.textContainerInset = UIEdgeInsets(top: 5, left: 10, bottom: 5, right: 10)
         textView.delegate = self
         textView.backgroundColor = UIColor.clear
         textView.maxHeight = 142
-        textView.minHeight = 40
+        textView.minHeight = height
         textView.attributedPlaceholder = NSAttributedString(string: placeHolder, attributes: placeHolderStyleAttr)
         textView.maxLength = maxLength
         if done { textView.returnKeyType = .done }
