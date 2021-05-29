@@ -4,6 +4,8 @@
 // directory. You can also find a detailed instruction on how to add platforms in the `pubspec.yaml` at https://flutter.dev/docs/development/packages-and-plugins/developing-packages#plugin-platforms.
 
 import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -261,6 +263,12 @@ class _YYTextFieldState extends State<YYTextField> {
               widget.controller.setViewId('$viewId');
               widget.controller.setMethodCallHandler(_handlerCall);
             },
+            gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
+              new Factory<OneSequenceGestureRecognizer>(
+                    () => new EagerGestureRecognizer(),
+              ),
+            ].toSet(),
+//            gestureRecognizers: Set()..add((() => VerticalDragGestureRecognizer())),
           ),
         ),
       );
