@@ -77,6 +77,14 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
                 Log.d(TAG, "afterTextChanged: " + s.toString());
             }
         });
+
+        mEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                Log.d(TAG, "onFocusChange: " + hasFocus);
+                methodChannel.invokeMethod("updateFocus", hasFocus);
+            }
+        });
     }
 
     @Override
@@ -122,8 +130,14 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
 
     private void handleUpdateFocus(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
         Boolean focus = (Boolean) call.arguments;
+        Log.d(TAG, "handleUpdateFocus: flutter -> android: " + focus);
         mEditText.setFocusable(focus);
         mEditText.setFocusableInTouchMode(focus);
+        if (focus) {
+            mEditText.requestFocus();
+        } else {
+            mEditText.clearFocus();
+        }
         result.success(null);
     }
 

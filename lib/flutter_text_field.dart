@@ -217,6 +217,7 @@ class _YYTextFieldState extends State<YYTextField> {
         break;
       case 'updateFocus':
         final focus = call.arguments ?? false;
+        print('////// focus: $focus');
         if (focus) {
           widget.focusNode.requestFocus();
         } else {
@@ -242,7 +243,7 @@ class _YYTextFieldState extends State<YYTextField> {
   @override
   void initState() {
     if (widget.autoFocus)
-      Future.delayed(const Duration(milliseconds: 1000)).then((_) {
+      Future.delayed(const Duration(seconds: 1)).then((_) {
         widget.controller.updateFocus(true);
       });
     super.initState();
@@ -281,7 +282,7 @@ class _YYTextFieldState extends State<YYTextField> {
         child: Focus(
           focusNode: widget.focusNode,
           onFocusChange: (focus) {
-            // widget.controller.updateFocus(focus);
+            widget.controller.updateFocus(focus);
           },
           child: PlatformViewLink(
             viewType: viewType,

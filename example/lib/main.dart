@@ -75,7 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 controller: _controller,
                 focusNode: _focusNode,
                 text: '1233',
-//              autoFocus: true,
+                // autoFocus: true,
                 textStyle: Theme.of(context)
                     .textTheme
                     .bodyText2
