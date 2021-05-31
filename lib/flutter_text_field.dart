@@ -56,7 +56,9 @@ class YYTextEditingValue {
 class YYTextFieldController extends ValueNotifier<YYTextEditingValue> {
   MethodChannel _channel;
   TextStyle _defaultRichTextStyle;
+
   String get text => value.text;
+
   set text(String newText) {
     setText(newText);
     value = value.copyWith(
@@ -123,6 +125,10 @@ class YYTextFieldController extends ValueNotifier<YYTextEditingValue> {
     });
   }
 
+  Future setAlpha(double alpha) async {
+    return _channel.invokeMethod("setAlpha", alpha);
+  }
+
   Future replaceAll(String text) async {
     return setText(text);
   }
@@ -150,6 +156,7 @@ class YYTextField extends StatefulWidget {
   final TextStyle placeHolderStyle;
   final int maxLength;
   final double width;
+  final double height;
   final VoidCallback onEditingComplete;
   final Function(String) onSubmitted;
   final Function(String) onChanged;
@@ -164,6 +171,7 @@ class YYTextField extends StatefulWidget {
     this.placeHolderStyle,
     this.maxLength = 5000,
     this.width,
+    this.height,
     this.onEditingComplete,
     this.onSubmitted,
     this.onChanged,
@@ -182,6 +190,7 @@ class _YYTextFieldState extends State<YYTextField> {
   Map createParams() {
     return {
       'width': widget.width ?? MediaQuery.of(context).size.width,
+      'height': widget.height,
       'text': widget.text,
       'textStyle': {
         'color': widget.textStyle.color.value,
@@ -257,6 +266,12 @@ class _YYTextFieldState extends State<YYTextField> {
               widget.controller.setViewId('$viewId');
               widget.controller.setMethodCallHandler(_handlerCall);
             },
+            gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
+              new Factory<OneSequenceGestureRecognizer>(
+                () => new EagerGestureRecognizer(),
+              ),
+            ].toSet(),
+//            gestureRecognizers: Set()..add((() => VerticalDragGestureRecognizer())),
           ),
         ),
       );

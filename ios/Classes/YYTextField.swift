@@ -5,31 +5,30 @@
 //  Created by lionel.hong on 2021/5/11.
 //
 
-import Foundation
 import Flutter
+import Foundation
 
 let bindClassKey = NSAttributedString.Key(rawValue: "BindClassKey")
 let dataKey = NSAttributedString.Key(rawValue: "data")
 
-class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
-    
-    var viewId:Int64 = -1
-    var textView:GrowingTextView!
-    var channel:FlutterMethodChannel!
+class YYTextField: NSObject, FlutterPlatformView, GrowingTextViewDelegate {
+    var viewId: Int64 = -1
+    var textView: GrowingTextView!
+    var channel: FlutterMethodChannel!
     var bakReplacementText: String = ""
-    
+
     var defaultAttributes: [NSAttributedString.Key: Any] = [
         bindClassKey: "",
         .font: UIFont.systemFont(ofSize: 14),
         .foregroundColor: UIColor.black,
     ]
-    
+
     var atAttributes: [NSAttributedString.Key: Any] = [
         .font: UIFont.systemFont(ofSize: 14),
         .foregroundColor: UIColor.blue,
     ]
-    
-    init(frame: CGRect, viewId: Int64, args:Any?,  messenger: FlutterBinaryMessenger) {
+
+    init(frame: CGRect, viewId: Int64, args: Any?, messenger: FlutterBinaryMessenger) {
         // 处理通信
         self.viewId = viewId
         // 页面初始化
@@ -37,44 +36,47 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
         var _frame = frame
         if _frame.size.width == 0 {
             let width = (args?["width"] as? CGFloat) ?? UIScreen.main.bounds.size.width
-            _frame = CGRect(x: frame.origin.x, y: frame.origin.y, width: width, height: 40)
+            _frame = CGRect(x: frame.origin.x, y: frame.origin.y, width: width, height: 32)
         }
         super.init()
-        
+
         channel = FlutterMethodChannel(name: "com.fanbook.yytextfield_\(viewId)", binaryMessenger: messenger)
-        channel.setMethodCallHandler { [weak self] (call, result) in
+        channel.setMethodCallHandler { [weak self] call, result in
             self?.handlerMethodCall(call, result)
         }
-        
+
         let initText = (args?["text"] as? String) ?? ""
         let textStyle = (args?["textStyle"] as? [String: Any])
         let placeHolderStyle = (args?["placeHolderStyle"] as? [String: Any])
         let placeHolder = (args?["placeHolder"] as? String) ?? ""
         let maxLength = (args?["maxLength"] as? Int) ?? 5000
         let done = (args?["done"] as? Bool) ?? false
+        let height = (args?["height"] as? CGFloat) ?? 32
+        let fontSize = (textStyle?["fontSize"] as? CGFloat) ?? 14
         defaultAttributes = textStyle2Attribute(textStyle: textStyle, defaultAttr: defaultAttributes)
         let placeHolderStyleAttr = textStyle2Attribute(textStyle: placeHolderStyle, defaultAttr: defaultAttributes)
-        
+
         textView = GrowingTextView(frame: _frame)
-        textView.attributedText = NSMutableAttributedString(string: initText,attributes: defaultAttributes)
-        textView.textContainerInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+        textView.font = .systemFont(ofSize: fontSize)
+        textView.attributedText = NSMutableAttributedString(string: initText, attributes: defaultAttributes)
+        textView.textContainerInset = UIEdgeInsets(top: 5, left: 10, bottom: 5, right: 10)
         textView.delegate = self
         textView.backgroundColor = UIColor.clear
         textView.maxHeight = 142
-        textView.minHeight = 40
+        textView.minHeight = height
         textView.attributedPlaceholder = NSAttributedString(string: placeHolder, attributes: placeHolderStyleAttr)
         textView.maxLength = maxLength
         if done { textView.returnKeyType = .done }
     }
-    
-    func handlerMethodCall(_ call: FlutterMethodCall, _ result: FlutterResult)  {
+
+    func handlerMethodCall(_ call: FlutterMethodCall, _ result: FlutterResult) {
         switch call.method {
         case "insertBlock":
-            if let args = call.arguments as? [String : Any] {
+            if let args = call.arguments as? [String: Any] {
                 let name = (args["name"] as? String) ?? ""
                 let data = (args["data"] as? String) ?? ""
                 let prefix = (args["prefix"] as? String) ?? ""
-                let textStyle = (args["textStyle"] as? [String : Any]?) ?? [:]
+                let textStyle = (args["textStyle"] as? [String: Any]?) ?? [:]
                 insertBlock(name: name, data: data, textStyle: textStyle, prefix: prefix)
             }
             break
@@ -93,7 +95,7 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
             }
             break
         case "replace":
-            if let args = call.arguments as? [String : Any] {
+            if let args = call.arguments as? [String: Any] {
                 let text = (args["text"] as? String) ?? ""
                 let selectionStart = (args["selection_start"] as? Int) ?? 0
                 let selectionEnd = (args["selection_end"] as? Int) ?? selectionStart
@@ -105,38 +107,41 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
                 setText(text: text)
             }
             break
+        case "setAlpha":
+
+            if let alpha = call.arguments as? CGFloat {
+                textView.alpha = alpha
+            }
+            break
         default:
             break
         }
     }
-    
+
     func view() -> UIView {
         return textView
     }
-    
+
     func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
         updateFocus(focus: true)
         return true
     }
-    
+
     func textViewDidChange(_ textView: UITextView) {
         updateValue()
     }
-    
-    
-    
-    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool{
-        
-        if text == "\n" && textView.returnKeyType == .done { 
+
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        if text == "\n" && textView.returnKeyType == .done {
             submitText()
             return false
         }
-        
+
         bakReplacementText = text
         // 重置输入样式
         textView.typingAttributes = defaultAttributes
         // 输入文字
-        if (range.location >= textView.attributedText.length) {
+        if range.location >= textView.attributedText.length {
             return true
         }
         if range.length > 1 {
@@ -160,7 +165,7 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
             }
             return true
         }
-        
+
         // 删除或者替换文字
         let _range = getCurrentRange(position: range.location)
         if _range != NSRange() {
@@ -174,7 +179,7 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
             }
             // 尾部添加
             else if (range.length == 0 && text.count > 0)
-                        && (range.location == _range.location + count || range.location == _range.location + count + 1) {
+                && (range.location == _range.location + count || range.location == _range.location + count + 1) {
                 return true
             }
             // 正常删除，并去掉样式
@@ -185,12 +190,11 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
                 textView.selectedRange = range
                 return true
             }
-            
         }
-        
+
         return true
     }
-    
+
     /// 高度变化回调
     func textViewDidChangeHeight(_ textView: GrowingTextView, height: CGFloat) {
         let frame = textView.frame
@@ -199,19 +203,17 @@ class YYTextField : NSObject,FlutterPlatformView,GrowingTextViewDelegate {
             textView.frame = CGRect(x: frame.origin.x, y: frame.origin.y, width: frame.size.width, height: height)
         }
     }
-    
 }
 
-
 extension YYTextField {
-    func textStyle2Attribute(textStyle :[String: Any]?, defaultAttr :[NSAttributedString.Key: Any]?) -> [NSAttributedString.Key: Any] {
+    func textStyle2Attribute(textStyle: [String: Any]?, defaultAttr: [NSAttributedString.Key: Any]?) -> [NSAttributedString.Key: Any] {
         guard let textStyle = textStyle else {
             return defaultAttr ?? [:]
         }
         let textColorValue = (textStyle["color"] as? Int) ?? 0
         let fontSize = (textStyle["fontSize"] as? Int) ?? 14
         let height = (textStyle["height"] as? Double) ?? 1.17
-        let textColor = UIColor.init(color: textColorValue)
+        let textColor = UIColor(color: textColorValue)
         return [
             bindClassKey: "",
             .font: UIFont.systemFont(ofSize: CGFloat(fontSize)),
@@ -221,47 +223,45 @@ extension YYTextField {
 }
 
 // MARK: - Range 处理
+
 extension YYTextField {
-    
-    func getDataValue(attr: [NSAttributedString.Key : Any]) -> String? {
-        
-        func isDataClass(attr: [NSAttributedString.Key : Any]) -> Bool {
+    func getDataValue(attr: [NSAttributedString.Key: Any]) -> String? {
+        func isDataClass(attr: [NSAttributedString.Key: Any]) -> Bool {
             return attr.keys.contains(dataKey) && (attr[dataKey] as! String).count > 0
         }
-        
+
         if !isDataClass(attr: attr) {
             return nil
         }
         return attr[dataKey] as? String
     }
-    
-    func getBindClassValue(attr: [NSAttributedString.Key : Any]) -> String? {
-        
-        func isBindClass(attr: [NSAttributedString.Key : Any]) -> Bool {
+
+    func getBindClassValue(attr: [NSAttributedString.Key: Any]) -> String? {
+        func isBindClass(attr: [NSAttributedString.Key: Any]) -> Bool {
             return attr.keys.contains(bindClassKey) && (attr[bindClassKey] as! String).count > 0
         }
-        
+
         if !isBindClass(attr: attr) {
             return nil
         }
         return attr[bindClassKey] as? String
     }
-    
+
     func getBindClassValue(position: Int) -> String? {
         if position <= 0 { return nil }
         let attr = textView.attributedText.attributes(at: position, effectiveRange: nil)
         return getBindClassValue(attr: attr)
     }
-    
+
     func getCurrentRange(position: Int) -> NSRange {
         if position < 0 || position >= textView.text.count {
             return NSRange()
         }
-        
+
         guard let value = getBindClassValue(position: position) else {
             return NSRange()
         }
-        
+
         var _position = position, _location = 0, _length = 0
         while _position >= 0 {
             var range = NSRange()
@@ -274,7 +274,7 @@ extension YYTextField {
                 _position = _location - 1
             }
         }
-        
+
         _position = _location + _length
         while _position < textView.text.count {
             var range = NSRange()
@@ -286,9 +286,7 @@ extension YYTextField {
                 _position = range.location + range.length + 1
             }
         }
-        
-        
+
         return NSRange(location: _location, length: _length)
     }
-    
 }

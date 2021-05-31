@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_text_field/flutter_text_field.dart';
 
@@ -56,32 +58,44 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Column(
         children: [
-          SizedBox(
-            width: 400,
-            child: YYTextField(
-              controller: _controller,
-              focusNode: _focusNode,
-              text: '1233',
-              autoFocus: true,
-              textStyle: Theme.of(context)
-                  .textTheme
-                  .bodyText2
-                  .copyWith(color: Colors.black, fontSize: 14),
-              placeHolder: '请输入....',
-              placeHolderStyle: Theme.of(context)
-                  .textTheme
-                  .bodyText1
-                  .copyWith(color: Colors.redAccent, fontSize: 18),
-              maxLength: 5000,
-              onChanged: (str) {
-                print('onChanged: $str');
-              },
-              onSubmitted: (str) {
-                print('onSubmitted: $str');
-              },
-              onEditingComplete: () {
-                print('onEditingComplete');
-              },
+          GestureDetector(
+            onHorizontalDragUpdate: (_) {},
+            onHorizontalDragCancel: () {},
+            onHorizontalDragDown: (_) {},
+            onHorizontalDragEnd: (_) {},
+            onHorizontalDragStart: (_) {},
+            onVerticalDragCancel: () {},
+            onVerticalDragDown: (_) {},
+            onVerticalDragEnd: (_) {},
+            onVerticalDragStart: (_) {},
+            onVerticalDragUpdate: (_) {},
+            child: SizedBox(
+              width: 400,
+              child: YYTextField(
+                controller: _controller,
+                focusNode: _focusNode,
+                text: '1233',
+//              autoFocus: true,
+                textStyle: Theme.of(context)
+                    .textTheme
+                    .bodyText2
+                    .copyWith(color: Colors.black, fontSize: 14),
+                placeHolder: '请输入....',
+                placeHolderStyle: Theme.of(context)
+                    .textTheme
+                    .bodyText1
+                    .copyWith(color: Colors.redAccent, fontSize: 18),
+                maxLength: 5000,
+                onChanged: (str) {
+                  print('onChanged: $str');
+                },
+                onSubmitted: (str) {
+                  print('onSubmitted: $str');
+                },
+                onEditingComplete: () {
+                  print('onEditingComplete');
+                },
+              ),
             ),
           ),
           TextButton(
@@ -123,6 +137,12 @@ class _MyHomePageState extends State<MyHomePage> {
                         end: _controller.text.length));
               },
               child: Text('delete 最后一个字符')),
+          TextButton(
+              onPressed: () async {
+                var rng = new Random();
+                _controller.setAlpha(rng.nextDouble());
+              },
+              child: Text('设置透明度')),
         ],
       ),
     );
