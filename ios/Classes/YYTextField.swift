@@ -52,10 +52,12 @@ class YYTextField: NSObject, FlutterPlatformView, GrowingTextViewDelegate {
         let maxLength = (args?["maxLength"] as? Int) ?? 5000
         let done = (args?["done"] as? Bool) ?? false
         let height = (args?["height"] as? CGFloat) ?? 32
+        let fontSize = (textStyle?["fontSize"] as? CGFloat) ?? 14
         defaultAttributes = textStyle2Attribute(textStyle: textStyle, defaultAttr: defaultAttributes)
         let placeHolderStyleAttr = textStyle2Attribute(textStyle: placeHolderStyle, defaultAttr: defaultAttributes)
 
         textView = GrowingTextView(frame: _frame)
+        textView.font = .systemFont(ofSize: fontSize)
         textView.attributedText = NSMutableAttributedString(string: initText, attributes: defaultAttributes)
         textView.textContainerInset = UIEdgeInsets(top: 5, left: 10, bottom: 5, right: 10)
         textView.delegate = self
