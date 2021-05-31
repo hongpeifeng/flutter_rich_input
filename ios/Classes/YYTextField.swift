@@ -59,7 +59,7 @@ class YYTextField: NSObject, FlutterPlatformView, GrowingTextViewDelegate {
         textView = GrowingTextView(frame: _frame)
         textView.font = .systemFont(ofSize: fontSize)
         textView.attributedText = NSMutableAttributedString(string: initText, attributes: defaultAttributes)
-        textView.textContainerInset = UIEdgeInsets(top: 5, left: 10, bottom: 5, right: 10)
+        textView.textContainerInset = UIEdgeInsets(top: 8, left: 10, bottom: 4, right: 0)
         textView.delegate = self
         textView.backgroundColor = UIColor.clear
         textView.maxHeight = 142
@@ -212,12 +212,17 @@ extension YYTextField {
         }
         let textColorValue = (textStyle["color"] as? Int) ?? 0
         let fontSize = (textStyle["fontSize"] as? Int) ?? 14
-        let height = (textStyle["height"] as? Double) ?? 1.17
+        let height = (textStyle["height"] as? CGFloat) ?? 1.25
         let textColor = UIColor(color: textColorValue)
+        
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = height
+        
         return [
             bindClassKey: "",
             .font: UIFont.systemFont(ofSize: CGFloat(fontSize)),
             .foregroundColor: textColor,
+            .paragraphStyle :paragraphStyle,
         ]
     }
 }
