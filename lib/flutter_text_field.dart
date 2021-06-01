@@ -9,28 +9,28 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class YYTextEditingValue {
+class RichTextEditingValue {
   final String text;
   final String data;
   final TextRange selection;
   final String inputText;
 
-  const YYTextEditingValue({
+  const RichTextEditingValue({
     this.text = '',
     this.data = '',
     this.inputText = '',
     this.selection = const TextRange.collapsed(0),
   });
 
-  static const YYTextEditingValue empty = YYTextEditingValue();
+  static const RichTextEditingValue empty = RichTextEditingValue();
 
-  YYTextEditingValue copyWith({
+  RichTextEditingValue copyWith({
     String text,
     String data,
     String inputText,
     TextRange selection,
   }) {
-    return YYTextEditingValue(
+    return RichTextEditingValue(
       text: text ?? this.text,
       data: data ?? this.data,
       inputText: inputText ?? '',
@@ -38,9 +38,9 @@ class YYTextEditingValue {
     );
   }
 
-  static YYTextEditingValue fromJSON(Map encoded) {
-    if (encoded == null) return YYTextEditingValue.empty;
-    return YYTextEditingValue(
+  static RichTextEditingValue fromJSON(Map encoded) {
+    if (encoded == null) return RichTextEditingValue.empty;
+    return RichTextEditingValue(
       text: encoded['text'] as String,
       data: encoded['data'] as String,
       selection: TextRange(
@@ -52,7 +52,7 @@ class YYTextEditingValue {
   }
 }
 
-class YYTextFieldController extends ValueNotifier<YYTextEditingValue> {
+class RichTextFieldController extends ValueNotifier<RichTextEditingValue> {
   MethodChannel _channel;
   TextStyle _defaultRichTextStyle;
 
@@ -68,8 +68,8 @@ class YYTextFieldController extends ValueNotifier<YYTextEditingValue> {
 
   String get data => value.data;
 
-  YYTextFieldController({TextStyle defaultRichTextStyle})
-      : super(YYTextEditingValue.empty) {
+  RichTextFieldController({TextStyle defaultRichTextStyle})
+      : super(RichTextEditingValue.empty) {
     _defaultRichTextStyle = defaultRichTextStyle ??
         TextStyle(color: Colors.lightBlueAccent, fontSize: 14, height: 1.17);
   }
@@ -141,13 +141,13 @@ class YYTextFieldController extends ValueNotifier<YYTextEditingValue> {
   }
 
   @override
-  set value(YYTextEditingValue newValue) {
+  set value(RichTextEditingValue newValue) {
     super.value = newValue;
   }
 }
 
-class YYTextField extends StatefulWidget {
-  final YYTextFieldController controller;
+class RichTextField extends StatefulWidget {
+  final RichTextFieldController controller;
   final FocusNode focusNode;
   final String text;
   final TextStyle textStyle;
@@ -161,7 +161,7 @@ class YYTextField extends StatefulWidget {
   final Function(String) onChanged;
   final bool autoFocus;
 
-  const YYTextField({
+  const RichTextField({
     @required this.controller,
     @required this.focusNode,
     this.text = '',
@@ -178,10 +178,10 @@ class YYTextField extends StatefulWidget {
   });
 
   @override
-  _YYTextFieldState createState() => _YYTextFieldState();
+  _RichTextFieldState createState() => _RichTextFieldState();
 }
 
-class _YYTextFieldState extends State<YYTextField> {
+class _RichTextFieldState extends State<RichTextField> {
   double _height = 40;
 
   Map createParams() {
@@ -226,7 +226,7 @@ class _YYTextFieldState extends State<YYTextField> {
         break;
       case 'updateValue':
         final Map temp = call.arguments;
-        final value = YYTextEditingValue.fromJSON(temp);
+        final value = RichTextEditingValue.fromJSON(temp);
         widget.controller.value = value;
         widget.onChanged?.call(value.text);
         break;

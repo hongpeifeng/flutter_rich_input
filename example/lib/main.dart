@@ -31,7 +31,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _viewId = 0;
-  YYTextFieldController _controller = YYTextFieldController();
+  RichTextFieldController _controller = RichTextFieldController();
   FocusNode _focusNode = FocusNode();
 
   @override
@@ -71,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
             onVerticalDragUpdate: (_) {},
             child: SizedBox(
               width: 400,
-              child: YYTextField(
+              child: RichTextField(
                 controller: _controller,
                 focusNode: _focusNode,
                 text: '1233',
