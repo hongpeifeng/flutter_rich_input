@@ -11,6 +11,7 @@ import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 
+import com.fanbook.flutter_text_field.R;
 import com.fanbook.flutter_text_field.Utils;
 
 import java.util.HashMap;
@@ -26,11 +27,13 @@ import static com.fanbook.flutter_text_field.FlutterTextFieldPlugin.VIEW_TYPE_ID
 public class NativeEditView implements PlatformView, MethodChannel.MethodCallHandler {
     private static final String TAG = "NativeEditView";
 
+    private Context mContext;
     private final EditText mEditText;
     private MethodChannel methodChannel;
 
     public NativeEditView(Context context, int viewId, Map<String, Object> creationParams, BinaryMessenger
             messenger) {
+        mContext = context;
         mEditText = new EditText(context);
         initViewParams(creationParams);
         initMethodChannel(messenger, viewId);
@@ -82,6 +85,15 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 Log.d(TAG, "onFocusChange: " + hasFocus);
+//                if (hasFocus) {
+//                    mEditText.setTextIsSelectable(true);
+//                } else {
+//                    mEditText.setTextIsSelectable(false);
+//                    mEditText.setFocusableInTouchMode(true);
+//                    mEditText.setFocusable(true);
+//                    mEditText.setClickable(true);
+//                    mEditText.setLongClickable(true);
+//                }
                 methodChannel.invokeMethod("updateFocus", hasFocus);
             }
         });
@@ -135,6 +147,7 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
             mEditText.requestFocus();
         } else {
             mEditText.clearFocus();
+            Utils.hideSoftKeyboard(mContext, mEditText);
         }
         result.success(null);
     }
