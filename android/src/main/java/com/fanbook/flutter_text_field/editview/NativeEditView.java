@@ -68,10 +68,11 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
                 Log.d(TAG, "onTextChanged: " + s.toString());
                 Map<String, Object> params = new HashMap<>();
                 params.put("text", mEditText.getText().toString());
-                params.put("data", "");
-                params.put("selection_start", 0);
-                params.put("selection_end", 0);
-                params.put("input_text", "");
+                // TODO 加block的时候这个data需要修改
+                params.put("data", mEditText.getText().toString());
+                params.put("selection_start", start);
+                params.put("selection_end", start + count);
+                params.put("input_text", s.subSequence(start, start + count).toString());
                 methodChannel.invokeMethod("updateValue", params);
             }
 
@@ -85,15 +86,6 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 Log.d(TAG, "onFocusChange: " + hasFocus);
-//                if (hasFocus) {
-//                    mEditText.setTextIsSelectable(true);
-//                } else {
-//                    mEditText.setTextIsSelectable(false);
-//                    mEditText.setFocusableInTouchMode(true);
-//                    mEditText.setFocusable(true);
-//                    mEditText.setClickable(true);
-//                    mEditText.setLongClickable(true);
-//                }
                 methodChannel.invokeMethod("updateFocus", hasFocus);
             }
         });
@@ -118,6 +110,8 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
             case "insertBlock":
                 handleInsertBlock(call, result);
                 break;
+            case "setAlpha":
+                handleSetAlpha(call, result);
             default:
                 result.notImplemented();
                 break;
@@ -174,4 +168,6 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
         result.success(null);
     }
 
+    private void handleSetAlpha(MethodCall call, MethodChannel.Result result) {
+    }
 }
