@@ -11,7 +11,7 @@ import Foundation
 let bindClassKey = NSAttributedString.Key(rawValue: "BindClassKey")
 let dataKey = NSAttributedString.Key(rawValue: "data")
 
-class RichTextField: NSObject, FlutterPlatformView, GrowingTextViewDelegate {
+class RichTextField: NSObject, FlutterPlatformView {
     var viewId: Int64 = -1
     var textView: GrowingTextView!
     var channel: FlutterMethodChannel!
