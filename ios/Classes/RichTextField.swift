@@ -11,7 +11,7 @@ import Foundation
 let bindClassKey = NSAttributedString.Key(rawValue: "BindClassKey")
 let dataKey = NSAttributedString.Key(rawValue: "data")
 
-class YYTextField: NSObject, FlutterPlatformView, GrowingTextViewDelegate {
+class RichTextField: NSObject, FlutterPlatformView, GrowingTextViewDelegate {
     var viewId: Int64 = -1
     var textView: GrowingTextView!
     var channel: FlutterMethodChannel!
@@ -40,7 +40,7 @@ class YYTextField: NSObject, FlutterPlatformView, GrowingTextViewDelegate {
         }
         super.init()
 
-        channel = FlutterMethodChannel(name: "com.fanbook.yytextfield_\(viewId)", binaryMessenger: messenger)
+        channel = FlutterMethodChannel(name: "com.fanbook.rich_textfield_\(viewId)", binaryMessenger: messenger)
         channel.setMethodCallHandler { [weak self] call, result in
             self?.handlerMethodCall(call, result)
         }
@@ -54,7 +54,7 @@ class YYTextField: NSObject, FlutterPlatformView, GrowingTextViewDelegate {
         let height = (args?["height"] as? CGFloat) ?? 32
         let fontSize = (textStyle?["fontSize"] as? CGFloat) ?? 14
         defaultAttributes = textStyle2Attribute(textStyle: textStyle, defaultAttr: defaultAttributes)
-        let placeHolderStyleAttr = textStyle2Attribute(textStyle: placeHolderStyle, defaultAttr: defaultAttributes)
+
 
         textView = GrowingTextView(frame: _frame)
         textView.font = .systemFont(ofSize: fontSize)
@@ -64,7 +64,7 @@ class YYTextField: NSObject, FlutterPlatformView, GrowingTextViewDelegate {
         textView.backgroundColor = UIColor.clear
         textView.maxHeight = 142
         textView.minHeight = height
-        textView.attributedPlaceholder = NSAttributedString(string: placeHolder, attributes: placeHolderStyleAttr)
+        textView.attributedPlaceholder = NSAttributedString(string: placeHolder, attributes: textStyle2Attribute(textStyle: placeHolderStyle, defaultAttr: defaultAttributes))
         textView.maxLength = maxLength
         if done { textView.returnKeyType = .done }
     }
@@ -122,6 +122,11 @@ class YYTextField: NSObject, FlutterPlatformView, GrowingTextViewDelegate {
         return textView
     }
 
+    
+}
+
+// MARK: - 处理编辑中各种富文本的逻辑
+extension RichTextField : GrowingTextViewDelegate {
     func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
         updateFocus(focus: true)
         return true
@@ -202,96 +207,5 @@ class YYTextField: NSObject, FlutterPlatformView, GrowingTextViewDelegate {
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.3) {
             textView.frame = CGRect(x: frame.origin.x, y: frame.origin.y, width: frame.size.width, height: height)
         }
-    }
-}
-
-extension YYTextField {
-    func textStyle2Attribute(textStyle: [String: Any]?, defaultAttr: [NSAttributedString.Key: Any]?) -> [NSAttributedString.Key: Any] {
-        guard let textStyle = textStyle else {
-            return defaultAttr ?? [:]
-        }
-        let textColorValue = (textStyle["color"] as? Int) ?? 0
-        let fontSize = (textStyle["fontSize"] as? Int) ?? 14
-        let height = (textStyle["height"] as? CGFloat) ?? 1.25
-        let textColor = UIColor(color: textColorValue)
-        
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = height
-        
-        return [
-            bindClassKey: "",
-            .font: UIFont.systemFont(ofSize: CGFloat(fontSize)),
-            .foregroundColor: textColor,
-            .paragraphStyle :paragraphStyle,
-        ]
-    }
-}
-
-// MARK: - Range 处理
-
-extension YYTextField {
-    func getDataValue(attr: [NSAttributedString.Key: Any]) -> String? {
-        func isDataClass(attr: [NSAttributedString.Key: Any]) -> Bool {
-            return attr.keys.contains(dataKey) && (attr[dataKey] as! String).count > 0
-        }
-
-        if !isDataClass(attr: attr) {
-            return nil
-        }
-        return attr[dataKey] as? String
-    }
-
-    func getBindClassValue(attr: [NSAttributedString.Key: Any]) -> String? {
-        func isBindClass(attr: [NSAttributedString.Key: Any]) -> Bool {
-            return attr.keys.contains(bindClassKey) && (attr[bindClassKey] as! String).count > 0
-        }
-
-        if !isBindClass(attr: attr) {
-            return nil
-        }
-        return attr[bindClassKey] as? String
-    }
-
-    func getBindClassValue(position: Int) -> String? {
-        if position <= 0 { return nil }
-        let attr = textView.attributedText.attributes(at: position, effectiveRange: nil)
-        return getBindClassValue(attr: attr)
-    }
-
-    func getCurrentRange(position: Int) -> NSRange {
-        if position < 0 || position >= textView.text.count {
-            return NSRange()
-        }
-
-        guard let value = getBindClassValue(position: position) else {
-            return NSRange()
-        }
-
-        var _position = position, _location = 0, _length = 0
-        while _position >= 0 {
-            var range = NSRange()
-            let attr = textView.attributedText.attributes(at: _position, effectiveRange: &range)
-            if value != getBindClassValue(attr: attr) {
-                break
-            } else {
-                _location = range.location
-                _length += range.length
-                _position = _location - 1
-            }
-        }
-
-        _position = _location + _length
-        while _position < textView.text.count {
-            var range = NSRange()
-            let attr = textView.attributedText.attributes(at: _position, effectiveRange: &range)
-            if value != getBindClassValue(attr: attr) {
-                break
-            } else {
-                _length = range.length + range.location - _location
-                _position = range.location + range.length + 1
-            }
-        }
-
-        return NSRange(location: _location, length: _length)
     }
 }

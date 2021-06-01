@@ -9,8 +9,8 @@ import Foundation
 import Flutter
 
 
-class YYTextFieldRegistrant {
+class RichTextFieldRegistrant {
     class func register(with registry: FlutterPluginRegistry) {
-        SwiftYYTextFieldPlugin.register(with: registry.registrar(forPlugin: "YYTextFieldPlugin")!)
+        SwiftRichTextFieldPlugin.register(with: registry.registrar(forPlugin: "RichTextFieldPlugin")!)
     }
 }

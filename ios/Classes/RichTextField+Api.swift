@@ -7,17 +7,15 @@
 
 import Foundation
 
-
-extension YYTextField {
+// MARK: - 主要是处理回调给flutter层的API
+extension RichTextField {
     
-    func insertAtString(name: String, data: String, textStyle: [String: Any]?) {
-        insertBlock(name: name, data: data, textStyle: textStyle, prefix: "@")
-    }
-    
-    func insertChannelString(name: String, data: String, textStyle: [String: Any]?) {
-        insertBlock(name: name, data: data, textStyle: textStyle, prefix: "#")
-    }
-
+    /// 插入富文本的核心函数
+    /// - Parameters:
+    ///   - name: 显示的内容
+    ///   - data: 发送需要替代成的内容
+    ///   - textStyle: 文字样式
+    ///   - prefix: 前缀
     func insertBlock(name: String, data: String, textStyle: [String: Any]?, prefix:String = "") {
         let inputText = "\(prefix)\(name)"
         editText(inputText: inputText) {_ in
@@ -41,11 +39,13 @@ extension YYTextField {
         }
     }
     
-    
+    /// 焦点更新
+    /// - Parameter focus: 输入框是否有焦点
     func updateFocus(focus: Bool) {
         channel.invokeMethod("updateFocus", arguments: focus)
     }
     
+    /// flutter controller value 回调
     func updateValue() {
         channel.invokeMethod("updateValue", arguments: [
             "text": textView.text ?? "",
@@ -56,6 +56,8 @@ extension YYTextField {
         ])
     }
     
+    /// 返回真实要上传的文字
+    /// - Returns: 真实要上传的文字
     func getData() -> String {
         var keys = Set<String>()
         var ret = ""
@@ -73,6 +75,8 @@ extension YYTextField {
         return ret
     }
     
+    /// 设置文字
+    /// - Parameter text: 文字内容
     func setText(text: String) {
         let isOriginEmpty = textView.text.isEmpty
         textView.attributedText = NSAttributedString(string: text, attributes: defaultAttributes)
@@ -84,6 +88,10 @@ extension YYTextField {
         updateValue()
     }
     
+    /// 区域替换文字
+    /// - Parameters:
+    ///   - text: 替换的文字
+    ///   - range: 区域
     func replace(text: String, range: NSRange) {
         if range.location < 0 || range.location + range.length > textView.attributedText.string.count {
             return
@@ -99,6 +107,8 @@ extension YYTextField {
         }
     }
     
+    /// 从光标位置插入指定内容
+    /// - Parameter text: 内容
     func insertText(text: String) {
         editText(inputText: text) {_ in
             let str = NSMutableAttributedString(attributedString: textView.attributedText!)
@@ -113,6 +123,14 @@ extension YYTextField {
         }
     }
     
+    
+    /// 编辑文字前后需要处理的事情，统一处理
+    /// - Parameters:
+    ///   - inputText: 输入的内容
+    ///   - replaceLength: 被替换文字的长度
+    ///   - range: 替换的范围
+    ///   - block: 处理block
+    /// - Returns: void
     func editText(inputText:String, replaceLength:Int = 0, range: NSRange? = nil, _ block:(Bool)->()) {
         if textView.maxLength != 0 && (inputText.count - replaceLength + textView.attributedText.string.count > textView.maxLength) {
             return
@@ -134,6 +152,7 @@ extension YYTextField {
         updateValue()
     }
     
+    /// 将文字回调到flutter层，处理flutter层的onDone和onSubmit等回调
     func submitText() {
         channel.invokeMethod("submitText", arguments: textView.text)
     }

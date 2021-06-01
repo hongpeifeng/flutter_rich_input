@@ -76,7 +76,7 @@ class YYTextFieldController extends ValueNotifier<YYTextEditingValue> {
 
   void setViewId(String viewId) {
     if (_channel != null) return;
-    _channel = MethodChannel('com.fanbook.yytextfield_$viewId');
+    _channel = MethodChannel('com.fanbook.rich_textfield_$viewId');
   }
 
   void setMethodCallHandler(Future<dynamic> Function(MethodCall call) handler) {
@@ -260,7 +260,7 @@ class _YYTextFieldState extends State<YYTextField> {
             widget.controller.updateFocus(focus);
           },
           child: UiKitView(
-            viewType: "com.fanbook.yytextfield",
+            viewType: "com.fanbook.rich_textfield",
             creationParams: createParams(),
             creationParamsCodec: const StandardMessageCodec(),
             onPlatformViewCreated: (viewId) {
