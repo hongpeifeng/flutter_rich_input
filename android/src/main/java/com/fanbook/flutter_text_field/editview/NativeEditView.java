@@ -50,6 +50,7 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         mEditText.setMinLines(1);
         mEditText.setLayoutParams(layoutParams);
+        mEditText.setPadding(Utils.dip2px(mContext, 14), 0,Utils.dip2px(mContext, 6), 0);
 
         mEditText.setWidth(Utils.dip2px(this.mEditText.getContext(), (float) creationParams.getWidth()));
         mEditText.setText(creationParams.getText());
