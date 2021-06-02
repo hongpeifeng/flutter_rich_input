@@ -7,6 +7,7 @@ import java.util.Map;
 public class CreationParams {
 
     private double width;
+    private double height;
     private String text;
     private TextStyle textStyle;
     private String placeHolder;
@@ -20,6 +21,9 @@ public class CreationParams {
     public CreationParams(Map<String, Object> params) {
         Object width = params.get("width");
         this.width = width == null ? 0 : (double) width;
+
+        Object height = params.get("width");
+        this.height = height == null ? 0 : (double) height;
 
         Object text = params.get("text");
         this.text = text == null ? "" : (String) text;
@@ -72,6 +76,10 @@ public class CreationParams {
 
     public int getMaxLength() {
         return maxLength;
+    }
+
+    public double getHeight() {
+        return height;
     }
 
     public boolean isDone() {
@@ -129,6 +137,7 @@ public class CreationParams {
     public String toString() {
         return "CreationParams{" +
                 "width=" + width +
+                ", height=" + height +
                 ", text='" + text + '\'' +
                 ", textStyle=" + textStyle +
                 ", placeHolder='" + placeHolder + '\'' +

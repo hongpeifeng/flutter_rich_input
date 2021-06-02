@@ -289,12 +289,16 @@ class _YYTextFieldState extends State<YYTextField> {
             surfaceFactory: (context, controller) {
               return AndroidViewSurface(
                 controller: controller,
-                gestureRecognizers: const <
-                    Factory<OneSequenceGestureRecognizer>>{},
+                gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
+                  new Factory<OneSequenceGestureRecognizer>(
+                    () => new EagerGestureRecognizer(),
+                  ),
+                ].toSet(),
                 hitTestBehavior: PlatformViewHitTestBehavior.opaque,
               );
             },
             onCreatePlatformView: (params) {
+              params.onPlatformViewCreated(params.id);
               return PlatformViewsService.initSurfaceAndroidView(
                 id: params.id,
                 viewType: viewType,
@@ -302,9 +306,7 @@ class _YYTextFieldState extends State<YYTextField> {
                 creationParams: createParams(),
                 creationParamsCodec: const StandardMessageCodec(),
               )
-                // ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
                 ..addOnPlatformViewCreatedListener((id) {
-                  params.onPlatformViewCreated(id);
                   widget.controller.setViewId('$id');
                   widget.controller.setMethodCallHandler(_handlerCall);
                 })

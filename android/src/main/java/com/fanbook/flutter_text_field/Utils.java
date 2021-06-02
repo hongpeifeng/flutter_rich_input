@@ -19,4 +19,8 @@ public class Utils {
             InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(context.INPUT_METHOD_SERVICE);
             inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
+
+    public static void setTextLineHeight(float height) {
+
+    }
 }

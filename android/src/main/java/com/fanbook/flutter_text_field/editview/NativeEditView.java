@@ -6,8 +6,13 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
@@ -42,6 +47,10 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
     private void initViewParams(Map<String, Object> params) {
         CreationParams creationParams = new CreationParams(params);
         Log.d(TAG, "initViewParams: " + creationParams);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        mEditText.setMinLines(1);
+        mEditText.setLayoutParams(layoutParams);
+
         mEditText.setWidth(Utils.dip2px(this.mEditText.getContext(), (float) creationParams.getWidth()));
         mEditText.setText(creationParams.getText());
         mEditText.setTextColor((int) creationParams.getTextStyle().getColor());
@@ -52,20 +61,30 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
         InputFilter[] filters = {new InputFilter.LengthFilter(creationParams.getMaxLength())};
         mEditText.setFilters(filters);
         mEditText.setBackground(null);
+        mEditText.setLongClickable(true);
     }
 
     private void initMethodChannel(BinaryMessenger messenger, int viewId) {
         methodChannel = new MethodChannel(messenger, VIEW_TYPE_ID + "_" + viewId);
         methodChannel.setMethodCallHandler(this);
         mEditText.addTextChangedListener(new TextWatcher() {
+            int beforeRow = 0;
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 Log.d(TAG, "beforeTextChanged: " + s.toString());
+                beforeRow = mEditText.getLineCount();
+                mEditText.setNestedScrollingEnabled(false);
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 Log.d(TAG, "onTextChanged: " + s.toString());
+                int changedRow = mEditText.getLineCount();
+                if (changedRow != beforeRow) {
+                    onTextRowChanged(beforeRow, changedRow);
+                }
+
                 Map<String, Object> params = new HashMap<>();
                 params.put("text", mEditText.getText().toString());
                 // TODO 加block的时候这个data需要修改
@@ -79,6 +98,13 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
             @Override
             public void afterTextChanged(Editable s) {
                 Log.d(TAG, "afterTextChanged: " + s.toString());
+            }
+
+            private void onTextRowChanged(int before, int after) {
+                Log.d(TAG, "onTextRowChanged: before " + before + ", after " + after);
+                double newHeight = after * 40;
+                methodChannel.invokeMethod("updateHeight", newHeight);
+                mEditText.setNestedScrollingEnabled(true);
             }
         });
 
@@ -160,6 +186,7 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
     }
 
     private void handleInsertBlock(MethodCall call, MethodChannel.Result result) {
+        result.success(null);
     }
 
     private void handleInsertText(MethodCall call, MethodChannel.Result result) {
@@ -169,5 +196,6 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
     }
 
     private void handleSetAlpha(MethodCall call, MethodChannel.Result result) {
+        result.success(null);
     }
 }
