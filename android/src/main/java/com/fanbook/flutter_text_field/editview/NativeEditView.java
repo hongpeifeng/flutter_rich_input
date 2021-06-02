@@ -50,13 +50,16 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         mEditText.setMinLines(1);
         mEditText.setLayoutParams(layoutParams);
-        mEditText.setPadding(Utils.dip2px(mContext, 14), 0,Utils.dip2px(mContext, 6), 0);
+        mEditText.setPadding(Utils.dip2px(mContext, 14), 0, Utils.dip2px(mContext, 6), 0);
+        mEditText.setGravity(Gravity.TOP);
 
         mEditText.setWidth(Utils.dip2px(this.mEditText.getContext(), (float) creationParams.getWidth()));
         mEditText.setText(creationParams.getText());
         mEditText.setTextColor((int) creationParams.getTextStyle().getColor());
         mEditText.setTextSize((float) creationParams.getTextStyle().getFontSize());
-        // TODO 文字占高比
+
+        Utils.setTextLineHeight(mEditText, (float) creationParams.getTextStyle().getHeight());
+
         mEditText.setHint(creationParams.getPlaceHolder());
         mEditText.setHintTextColor((int) creationParams.getPlaceHolderStyle().getColor());
         InputFilter[] filters = {new InputFilter.LengthFilter(creationParams.getMaxLength())};
