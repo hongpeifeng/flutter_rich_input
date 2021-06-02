@@ -67,46 +67,7 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
     private void initMethodChannel(BinaryMessenger messenger, int viewId) {
         methodChannel = new MethodChannel(messenger, VIEW_TYPE_ID + "_" + viewId);
         methodChannel.setMethodCallHandler(this);
-        mEditText.addTextChangedListener(new TextWatcher() {
-            int beforeRow = 0;
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                Log.d(TAG, "beforeTextChanged: " + s.toString());
-                beforeRow = mEditText.getLineCount();
-                mEditText.setNestedScrollingEnabled(false);
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                Log.d(TAG, "onTextChanged: " + s.toString());
-                int changedRow = mEditText.getLineCount();
-                if (changedRow != beforeRow) {
-                    onTextRowChanged(beforeRow, changedRow);
-                }
-
-                Map<String, Object> params = new HashMap<>();
-                params.put("text", mEditText.getText().toString());
-                // TODO 加block的时候这个data需要修改
-                params.put("data", mEditText.getText().toString());
-                params.put("selection_start", start);
-                params.put("selection_end", start + count);
-                params.put("input_text", s.subSequence(start, start + count).toString());
-                methodChannel.invokeMethod("updateValue", params);
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                Log.d(TAG, "afterTextChanged: " + s.toString());
-            }
-
-            private void onTextRowChanged(int before, int after) {
-                Log.d(TAG, "onTextRowChanged: before " + before + ", after " + after);
-                double newHeight = after * 40;
-                methodChannel.invokeMethod("updateHeight", newHeight);
-                mEditText.setNestedScrollingEnabled(true);
-            }
-        });
+        mEditText.addTextChangedListener(new CustomTextWatcher(mEditText, methodChannel));
 
         mEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -186,6 +147,12 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
     }
 
     private void handleInsertBlock(MethodCall call, MethodChannel.Result result) {
+        String x = "111";
+        String one = CustomTextWatcher.specialStartChar + x + CustomTextWatcher.specialEndChar;
+
+        String two = "222";
+        String r = one + two + one;
+        mEditText.getText().insert(mEditText.getSelectionStart(), r);
         result.success(null);
     }
 
