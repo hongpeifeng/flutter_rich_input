@@ -80,7 +80,7 @@ extension RichTextField {
     func setText(text: String) {
         let isOriginEmpty = textView.text.isEmpty
         textView.attributedText = NSAttributedString(string: text, attributes: defaultAttributes)
-        if (isOriginEmpty) { // 必要时重绘placeHolder，不设置textView不会刷新
+        if (isOriginEmpty || text.isEmpty) { // 必要时重绘placeHolder，不设置textView不会刷新
             textView.attributedPlaceholder = textView.attributedPlaceholder
         }
         bakReplacementText = text
