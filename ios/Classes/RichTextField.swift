@@ -58,6 +58,7 @@ class RichTextField: NSObject, FlutterPlatformView {
 
         textView = GrowingTextView(frame: _frame)
         textView.font = .systemFont(ofSize: fontSize)
+        textView.textColor = defaultAttributes[.foregroundColor] as? UIColor ?? UIColor.black
         textView.attributedText = NSMutableAttributedString(string: initText, attributes: defaultAttributes)
         textView.textContainerInset = UIEdgeInsets(top: 8, left: 10, bottom: 4, right: 0)
         textView.delegate = self
