@@ -70,32 +70,36 @@ class _MyHomePageState extends State<MyHomePage> {
             onVerticalDragEnd: (_) {},
             onVerticalDragStart: (_) {},
             onVerticalDragUpdate: (_) {},
-            child: SizedBox(
+            child: Container(
+              decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
               width: 400,
-              child: YYTextField(
-                controller: _controller,
-                focusNode: _focusNode,
-                text: '1233',
-                // autoFocus: true,
-                textStyle: Theme.of(context)
-                    .textTheme
-                    .bodyText2
-                    .copyWith(color: Colors.black, fontSize: 14),
-                placeHolder: '请输入....',
-                placeHolderStyle: Theme.of(context)
-                    .textTheme
-                    .bodyText1
-                    .copyWith(color: Colors.redAccent, fontSize: 18),
-                maxLength: 5000,
-                onChanged: (str) {
-                  print('onChanged: $str');
-                },
-                onSubmitted: (str) {
-                  print('onSubmitted: $str');
-                },
-                onEditingComplete: () {
-                  print('onEditingComplete');
-                },
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 142),
+                child: YYTextField(
+                  controller: _controller,
+                  focusNode: _focusNode,
+                  text: '1233',
+                  // autoFocus: true,
+                  textStyle: Theme.of(context)
+                      .textTheme
+                      .bodyText2
+                      .copyWith(color: Colors.black, fontSize: 17),
+                  placeHolder: '请输入....',
+                  placeHolderStyle: Theme.of(context)
+                      .textTheme
+                      .bodyText1
+                      .copyWith(color: Colors.redAccent, fontSize: 17),
+                  maxLength: 5000,
+                  onChanged: (str) {
+                    print('onChanged: $str');
+                  },
+                  onSubmitted: (str) {
+                    print('onSubmitted: $str');
+                  },
+                  onEditingComplete: () {
+                    print('onEditingComplete');
+                  },
+                ),
               ),
             ),
           ),

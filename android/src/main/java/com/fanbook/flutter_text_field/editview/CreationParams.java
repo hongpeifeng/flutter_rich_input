@@ -22,7 +22,7 @@ public class CreationParams {
         Object width = params.get("width");
         this.width = width == null ? 0 : (double) width;
 
-        Object height = params.get("width");
+        Object height = params.get("height");
         this.height = height == null ? 0 : (double) height;
 
         Object text = params.get("text");

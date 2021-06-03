@@ -7,16 +7,13 @@ import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
+import android.widget.Scroller;
 
 import androidx.annotation.NonNull;
 
-import com.fanbook.flutter_text_field.R;
 import com.fanbook.flutter_text_field.Utils;
 
 import java.util.HashMap;
@@ -35,6 +32,9 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
     private Context mContext;
     private final EditText mEditText;
     private MethodChannel methodChannel;
+    private double mTextLineHeight;
+
+    private final int DEFAULT_HEIGHT = 40;
 
     public NativeEditView(Context context, int viewId, Map<String, Object> creationParams, BinaryMessenger
             messenger) {
@@ -49,16 +49,23 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
         Log.d(TAG, "initViewParams: " + creationParams);
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         mEditText.setMinLines(1);
+        mEditText.setGravity(Gravity.CENTER_VERTICAL);
         mEditText.setLayoutParams(layoutParams);
-        mEditText.setPadding(Utils.dip2px(mContext, 14), 0, Utils.dip2px(mContext, 6), 0);
-        mEditText.setGravity(Gravity.TOP);
+
+        double textSize = creationParams.getTextStyle().getFontSize();
+        double textHeightRatio = (float) creationParams.getTextStyle().getHeight();
+
+        double verticalPaddingDp =  ((DEFAULT_HEIGHT - textSize) / 2);
+        int verticalPadding = Utils.dip2px(mContext, (float) (verticalPaddingDp - (textHeightRatio - 1) * textSize));
+        mEditText.setPadding(Utils.dip2px(mContext, 14), verticalPadding, Utils.dip2px(mContext, 6), verticalPadding);
 
         mEditText.setWidth(Utils.dip2px(this.mEditText.getContext(), (float) creationParams.getWidth()));
         mEditText.setText(creationParams.getText());
         mEditText.setTextColor((int) creationParams.getTextStyle().getColor());
-        mEditText.setTextSize((float) creationParams.getTextStyle().getFontSize());
+        mEditText.setTextSize((float) textSize);
 
-        Utils.setTextLineHeight(mEditText, (float) creationParams.getTextStyle().getHeight());
+        Utils.setTextLineHeight(mEditText, (float)textHeightRatio);
+        mTextLineHeight =  Utils.getTextLineHeight(mEditText, (float)textHeightRatio) + 10;
 
         mEditText.setHint(creationParams.getPlaceHolder());
         mEditText.setHintTextColor((int) creationParams.getPlaceHolderStyle().getColor());
@@ -105,8 +112,8 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
             }
 
             private void onTextRowChanged(int before, int after) {
-                Log.d(TAG, "onTextRowChanged: before " + before + ", after " + after);
-                double newHeight = after * 40;
+                double newHeight = Utils.px2dip(mContext, (float) ((after - 1) * mTextLineHeight)) + DEFAULT_HEIGHT ;
+                Log.d(TAG, "onTextRowChanged: before " + before + ", after " + after + ", newHeight " + newHeight);
                 methodChannel.invokeMethod("updateHeight", newHeight);
                 mEditText.setNestedScrollingEnabled(true);
             }

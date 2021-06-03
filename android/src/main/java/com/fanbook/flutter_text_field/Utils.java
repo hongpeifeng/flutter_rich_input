@@ -29,4 +29,9 @@ public class Utils {
         float lineHeight = height * textHeight;
         textView.setLineSpacing(lineHeight - fontHeight, 1f);
     }
+
+    public static float getTextLineHeight(TextView textView, float height) {
+        final float textHeight = textView.getTextSize();
+        return height * textHeight;
+    }
 }
