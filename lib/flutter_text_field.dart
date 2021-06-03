@@ -87,6 +87,10 @@ class RichTextFieldController extends ValueNotifier<RichTextEditingValue> {
     return _channel.invokeMethod("insertText", text);
   }
 
+  Future updateWidth(double width) async {
+    _channel.invokeMethod("updateWidth", width);
+  }
+
   Future insertAtName(String name,
       {String data = '', TextStyle textStyle}) async {
     insertBlock('$name ', data: data, textStyle: textStyle, prefix: '@');

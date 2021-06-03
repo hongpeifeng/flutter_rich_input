@@ -55,14 +55,13 @@ class RichTextField: NSObject, FlutterPlatformView {
         let fontSize = (textStyle?["fontSize"] as? CGFloat) ?? 14
         defaultAttributes = textStyle2Attribute(textStyle: textStyle, defaultAttr: defaultAttributes)
 
-
         textView = GrowingTextView(frame: _frame)
         textView.font = .systemFont(ofSize: fontSize)
         textView.textColor = defaultAttributes[.foregroundColor] as? UIColor ?? UIColor.black
         textView.attributedText = NSMutableAttributedString(string: initText, attributes: defaultAttributes)
         textView.textContainerInset = UIEdgeInsets(top: 8, left: 10, bottom: 4, right: 0)
         textView.delegate = self
-        textView.backgroundColor = UIColor.clear
+        textView.backgroundColor = UIColor.red
         textView.maxHeight = 142
         textView.minHeight = height
         textView.attributedPlaceholder = NSAttributedString(string: placeHolder, attributes: textStyle2Attribute(textStyle: placeHolderStyle, defaultAttr: defaultAttributes))
@@ -114,6 +113,11 @@ class RichTextField: NSObject, FlutterPlatformView {
                 textView.alpha = alpha
             }
             break
+        case "updateWidth":
+            if let width = call.arguments as? Double {
+                updateWidth(width: width)
+            }
+            break
         default:
             break
         }
@@ -122,12 +126,11 @@ class RichTextField: NSObject, FlutterPlatformView {
     func view() -> UIView {
         return textView
     }
-
-    
 }
 
 // MARK: - 处理编辑中各种富文本的逻辑
-extension RichTextField : GrowingTextViewDelegate {
+
+extension RichTextField: GrowingTextViewDelegate {
     func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
         updateFocus(focus: true)
         return true
