@@ -61,7 +61,7 @@ class RichTextField: NSObject, FlutterPlatformView {
         textView.attributedText = NSMutableAttributedString(string: initText, attributes: defaultAttributes)
         textView.textContainerInset = UIEdgeInsets(top: 8, left: 10, bottom: 4, right: 0)
         textView.delegate = self
-        textView.backgroundColor = UIColor.red
+        textView.backgroundColor = UIColor.clear
         textView.maxHeight = 142
         textView.minHeight = height
         textView.attributedPlaceholder = NSAttributedString(string: placeHolder, attributes: textStyle2Attribute(textStyle: placeHolderStyle, defaultAttr: defaultAttributes))
