@@ -160,7 +160,8 @@ extension RichTextField: GrowingTextViewDelegate {
         if !deleteChatSingle {
             // 需要把包含在range这个区间头部和尾部的富文本样式去掉
             let beginRange = getCurrentRange(position: range.location)
-            let count = (textView.text as NSString).substring(with: beginRange).trimmingCharacters(in: .whitespaces).count
+            let lastSpace = (textView.text as NSString).substring(with: beginRange).last == " "
+            let count = beginRange.length - (lastSpace ? 1 : 0)
             if beginRange != NSRange() && range.location < beginRange.location + count {
                 let str = NSMutableAttributedString(attributedString: textView.attributedText!)
                 str.addAttributes(defaultAttributes, range: beginRange)
