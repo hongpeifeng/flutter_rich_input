@@ -72,14 +72,11 @@ extension RichTextField {
     func getData() -> String {
         var keys = Set<String>()
         var ret = ""
-        textView.attributedText.enumerateAttributes(in: NSRange(location: 0, length: textView.attributedText.string.count), options: NSAttributedString.EnumerationOptions.longestEffectiveRangeNotRequired) { attr, range, _ in
+        textView.attributedText.enumerateAttributes(in: NSRange(location: 0, length: textView.attributedText.length), options: NSAttributedString.EnumerationOptions.longestEffectiveRangeNotRequired) { attr, range, _ in
             let keyString = getBindClassValue(attr: attr) ?? ""
             if keyString.count == 0 {
-                let startIndex = textView.text.startIndex
-                let beginIndex = textView.text.index(startIndex, offsetBy: range.location)
-                let endIndex = textView.text.index(startIndex, offsetBy: range.location + range.length)
-                let str = String(textView.text[beginIndex..<endIndex])
-                ret.append(str)
+                let text = textView.attributedText.attributedSubstring(from: range).string
+                ret.append(text)
             } else {
                 if !keys.contains(keyString) {
                     keys.insert(keyString)
