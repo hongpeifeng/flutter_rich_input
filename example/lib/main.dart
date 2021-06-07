@@ -37,7 +37,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     _controller.addListener(() {
-      print('value: ${_controller.value}');
+      print('value: ${_controller.value.text} / data: ${_controller.data}');
     });
     super.initState();
   }

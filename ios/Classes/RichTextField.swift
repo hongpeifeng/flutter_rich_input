@@ -77,7 +77,8 @@ class RichTextField: NSObject, FlutterPlatformView {
                 let data = (args["data"] as? String) ?? ""
                 let prefix = (args["prefix"] as? String) ?? ""
                 let textStyle = (args["textStyle"] as? [String: Any]?) ?? [:]
-                insertBlock(name: name, data: data, textStyle: textStyle, prefix: prefix)
+                let backSpace = (args["backSpace"] as? Bool) ?? false
+                insertBlock(name: name, data: data, textStyle: textStyle, prefix: prefix, backSpace: backSpace)
             }
             break
         case "insertText":
