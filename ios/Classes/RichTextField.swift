@@ -153,7 +153,11 @@ extension RichTextField: GrowingTextViewDelegate {
         if range.location >= textView.attributedText.length {
             return true
         }
-        if range.length > 1 {
+        
+        /// 是否是删除单个字符
+        let deleteChatSingle = (textView.text as NSString).substring(with: range).count == 1
+        
+        if !deleteChatSingle {
             // 需要把包含在range这个区间头部和尾部的富文本样式去掉
             let beginRange = getCurrentRange(position: range.location)
             let count = (textView.text as NSString).substring(with: beginRange).trimmingCharacters(in: .whitespaces).count
@@ -178,10 +182,11 @@ extension RichTextField: GrowingTextViewDelegate {
         // 删除或者替换文字
         let _range = getCurrentRange(position: range.location)
         if _range != NSRange() {
-            let count = (textView.text as NSString).substring(with: _range).trimmingCharacters(in: .whitespaces).count
+            let count = _range.length //(textView.text as NSString).substring(with: _range).trimmingCharacters(in: .whitespaces).count
+            let lastSpace = (textView.text as NSString).substring(with: _range).last == " "
             // 尾部删除
-            if (range.length == 1 && text.count == 0)
-                && (range.location + 1 == _range.location + count || range.location + 1 == _range.location + count + 1) {
+            if (deleteChatSingle && text.count == 0)
+                && (range.location + range.length == _range.location + count || (lastSpace && range.location + range.length == _range.location + count - 1)) {
                 let textRange = textView.textRange(from: textView.position(from: textView.beginningOfDocument, offset: _range.location)!, to: textView.position(from: textView.beginningOfDocument, offset: _range.location + _range.length)!)
                 textView.replace(textRange!, withText: text)
                 return false

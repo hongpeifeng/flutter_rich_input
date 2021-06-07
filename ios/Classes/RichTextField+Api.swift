@@ -30,11 +30,12 @@ extension RichTextField {
             attr[bindClassKey] = UUID().uuidString
             attr[dataKey] = data
 
-            str.insert(NSAttributedString(string: atName, attributes: attr), at: location)
+            let attrStr = NSAttributedString(string: atName, attributes: attr)
+            str.insert(attrStr, at: location)
 
             textView.attributedText = str
 
-            textView.selectedRange = NSMakeRange(location + atName.count, 0)
+            textView.selectedRange = NSMakeRange(location + attrStr.length, 0)
         }
     }
 

@@ -75,7 +75,7 @@ extension RichTextField {
     /// - Parameter position: 位置
     /// - Returns: 富文本区间
     func getCurrentRange(position: Int) -> NSRange {
-        if position < 0 || position >= textView.text.count {
+        if position < 0 || position >= textView.attributedText.length {
             return NSRange()
         }
 
