@@ -69,7 +69,11 @@ extension RichTextField {
         textView.attributedText.enumerateAttributes(in: NSRange(location: 0, length: textView.attributedText.string.count), options: NSAttributedString.EnumerationOptions.longestEffectiveRangeNotRequired) { attr, range, _ in
             let keyString = getBindClassValue(attr: attr) ?? ""
             if keyString.count == 0 {
-                ret.append(textView.attributedText.attributedSubstring(from: range).string)
+                let startIndex = textView.text.startIndex
+                let beginIndex = textView.text.index(startIndex, offsetBy: range.location)
+                let endIndex = textView.text.index(startIndex, offsetBy: range.location + range.length)
+                let str = String(textView.text[beginIndex..<endIndex])
+                ret.append(str)
             } else {
                 if !keys.contains(keyString) {
                     keys.insert(keyString)
