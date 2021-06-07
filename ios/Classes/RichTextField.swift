@@ -19,12 +19,12 @@ class RichTextField: NSObject, FlutterPlatformView {
 
     var defaultAttributes: [NSAttributedString.Key: Any] = [
         bindClassKey: "",
-        .font: UIFont.systemFont(ofSize: 14),
+        .font: UIFont.systemFont(ofSize: 17),
         .foregroundColor: UIColor.black,
     ]
 
     var atAttributes: [NSAttributedString.Key: Any] = [
-        .font: UIFont.systemFont(ofSize: 14),
+        .font: UIFont.systemFont(ofSize: 17),
         .foregroundColor: UIColor.blue,
     ]
 
@@ -52,7 +52,7 @@ class RichTextField: NSObject, FlutterPlatformView {
         let maxLength = (args?["maxLength"] as? Int) ?? 5000
         let done = (args?["done"] as? Bool) ?? false
         let height = (args?["height"] as? CGFloat) ?? 32
-        let fontSize = (textStyle?["fontSize"] as? CGFloat) ?? 14
+        let fontSize = (textStyle?["fontSize"] as? CGFloat) ?? 17
         defaultAttributes = textStyle2Attribute(textStyle: textStyle, defaultAttr: defaultAttributes)
 
         textView = GrowingTextView(frame: _frame)
