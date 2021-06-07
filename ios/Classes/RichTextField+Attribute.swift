@@ -19,7 +19,7 @@ extension RichTextField {
             return defaultAttr ?? [:]
         }
         let textColorValue = (textStyle["color"] as? Int) ?? 0
-        let fontSize = (textStyle["fontSize"] as? Int) ?? 14
+        let fontSize = (textStyle["fontSize"] as? Int) ?? 17
         let height = (textStyle["height"] as? CGFloat) ?? 1.25
         let textColor = UIColor(color: textColorValue)
         
