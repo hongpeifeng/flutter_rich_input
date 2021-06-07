@@ -56,6 +56,7 @@ class RichTextFieldController extends ValueNotifier<RichTextEditingValue> {
   MethodChannel _channel;
   TextStyle _defaultRichTextStyle;
 
+
   String get text => value.text;
 
   set text(String newText) {
@@ -74,6 +75,17 @@ class RichTextFieldController extends ValueNotifier<RichTextEditingValue> {
         TextStyle(color: Colors.lightBlueAccent, fontSize: 14, height: 1.17);
   }
 
+  Future wait(Function func, [int milliseconds = 300]) async {
+    for (int i = 0; i < 5; i++) {
+      if (_channel != null) {
+        return func?.call();
+        break;
+      }
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+    return Future.value();
+  }
+
   void setViewId(String viewId) {
     if (_channel != null) return;
     _channel = MethodChannel('com.fanbook.rich_textfield_$viewId');
@@ -84,27 +96,27 @@ class RichTextFieldController extends ValueNotifier<RichTextEditingValue> {
   }
 
   Future insertText(String text) async {
-    return _channel.invokeMethod("insertText", text);
+    return wait(() => _channel.invokeMethod("insertText", text));
   }
 
   Future updateWidth(double width) async {
-    _channel.invokeMethod("updateWidth", width);
+    return wait(() => _channel.invokeMethod("updateWidth", width));
   }
 
   Future insertAtName(String name,
       {String data = '', TextStyle textStyle}) async {
-    insertBlock('$name ', data: data, textStyle: textStyle, prefix: '@');
+    return wait(() => insertBlock('$name ', data: data, textStyle: textStyle, prefix: '@'));
   }
 
   Future insertChannelName(String name,
       {String data = '', TextStyle textStyle}) async {
-    insertBlock('$name ', data: data, textStyle: textStyle, prefix: '#');
+    return wait(() => insertBlock('$name ', data: data, textStyle: textStyle, prefix: '#'));
   }
 
   Future insertBlock(String name,
       {String data = '', TextStyle textStyle, String prefix = ''}) {
     textStyle ??= _defaultRichTextStyle;
-    return _channel.invokeMethod("insertBlock", {
+    return wait(() => _channel.invokeMethod("insertBlock", {
       'name': name,
       'data': data,
       'prefix': prefix,
@@ -113,23 +125,23 @@ class RichTextFieldController extends ValueNotifier<RichTextEditingValue> {
         'fontSize': textStyle.fontSize,
         'height': textStyle.height ?? 1.17
       }
-    });
+    }));
   }
 
   Future updateFocus(bool focus) async {
-    return _channel.invokeMethod("updateFocus", focus);
+    return wait(() => _channel.invokeMethod("updateFocus", focus));
   }
 
   Future replace(String text, TextRange range) async {
-    return _channel.invokeMethod("replace", {
+    return wait(() => _channel.invokeMethod("replace", {
       'text': text,
       'selection_start': range.start,
       'selection_end': range.end,
-    });
+    }));
   }
 
   Future setAlpha(double alpha) async {
-    return _channel.invokeMethod("setAlpha", alpha);
+    return wait(() => _channel.invokeMethod("setAlpha", alpha));
   }
 
   Future replaceAll(String text) async {
@@ -141,7 +153,7 @@ class RichTextFieldController extends ValueNotifier<RichTextEditingValue> {
   }
 
   Future setText(String text) async {
-    return _channel.invokeMethod("setText", text);
+    return wait(() => _channel.invokeMethod("setText", text));
   }
 
   @override
@@ -187,6 +199,7 @@ class RichTextField extends StatefulWidget {
 
 class _RichTextFieldState extends State<RichTextField> {
   double _height = 40;
+
 
   Map createParams() {
     return {
@@ -254,6 +267,12 @@ class _RichTextFieldState extends State<RichTextField> {
   }
 
   @override
+  void dispose() {
+    widget.controller.setMethodCallHandler(null);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (Platform.isIOS) {
       return SizedBox(
@@ -283,4 +302,6 @@ class _RichTextFieldState extends State<RichTextField> {
     }
     return Text('暂不支持该平台');
   }
+
+
 }
