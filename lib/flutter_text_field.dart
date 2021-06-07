@@ -75,11 +75,10 @@ class RichTextFieldController extends ValueNotifier<RichTextEditingValue> {
         TextStyle(color: Colors.lightBlueAccent, fontSize: 14, height: 1.17);
   }
 
-  Future wait(Function func, [int milliseconds = 300]) async {
+  Future wait(Function func) async {
     for (int i = 0; i < 5; i++) {
       if (_channel != null) {
         return func?.call();
-        break;
       }
       await Future.delayed(const Duration(milliseconds: 100));
     }
@@ -260,9 +259,7 @@ class _RichTextFieldState extends State<RichTextField> {
   @override
   void initState() {
     if (widget.autoFocus)
-      Future.delayed(const Duration(milliseconds: 300)).then((_) {
-        widget.controller.updateFocus(true);
-      });
+      widget.controller.updateFocus(true);
     super.initState();
   }
 
