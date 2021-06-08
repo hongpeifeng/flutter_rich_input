@@ -16,7 +16,7 @@ extension RichTextField {
     ///   - data: 发送需要替代成的内容
     ///   - textStyle: 文字样式
     ///   - prefix: 前缀
-    func insertBlock(name: String, data: String, textStyle: [String: Any]?, prefix: String = "", backSpace: Bool = false) {
+    func insertBlock(name: String, data: String, textStyle: [String: Any]?, prefix: String = "", backSpaceLength: Int = 0) {
         let inputText = "\(prefix)\(name)"
         editText(inputText: inputText) { _ in
 
@@ -26,9 +26,9 @@ extension RichTextField {
 
             var location = textView.selectedRange.location
             
-            if location >= 1 && backSpace {
-                str.replaceCharacters(in: NSRange(location: location - 1, length: 1), with: "")
-                location -= 1
+            if location >= backSpaceLength && backSpaceLength > 0 {
+                str.replaceCharacters(in: NSRange(location: location - backSpaceLength, length: backSpaceLength), with: "")
+                location -= backSpaceLength
             }
 
             var attr: [NSAttributedString.Key: Any] = textStyle2Attribute(textStyle: textStyle, defaultAttr: atAttributes)

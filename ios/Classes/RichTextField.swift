@@ -77,8 +77,8 @@ class RichTextField: NSObject, FlutterPlatformView {
                 let data = (args["data"] as? String) ?? ""
                 let prefix = (args["prefix"] as? String) ?? ""
                 let textStyle = (args["textStyle"] as? [String: Any]?) ?? [:]
-                let backSpace = (args["backSpace"] as? Bool) ?? false
-                insertBlock(name: name, data: data, textStyle: textStyle, prefix: prefix, backSpace: backSpace)
+                let backSpaceLength = (args["backSpaceLength"] as? Int) ?? 0
+                insertBlock(name: name, data: data, textStyle: textStyle, prefix: prefix, backSpaceLength: backSpaceLength)
             }
             break
         case "insertText":
@@ -158,7 +158,7 @@ extension RichTextField: GrowingTextViewDelegate {
         /// 是否是删除单个字符
         let deleteChatSingle = (textView.text as NSString).substring(with: range).count == 1
         
-        if !deleteChatSingle {
+        if !deleteChatSingle && range.length > 0 {
             // 需要把包含在range这个区间头部和尾部的富文本样式去掉
             let beginRange = getCurrentRange(position: range.location)
             let lastSpace = (textView.text as NSString).substring(with: beginRange).last == " "

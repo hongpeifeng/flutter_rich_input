@@ -103,23 +103,23 @@ class RichTextFieldController extends ValueNotifier<RichTextEditingValue> {
   }
 
   Future insertAtName(String name,
-      {String data = '', TextStyle textStyle, bool backSpace = false}) async {
-    return wait(() => insertBlock('$name ', data: data, textStyle: textStyle, prefix: '@', backSpace: backSpace));
+      {String data = '', TextStyle textStyle, int backSpaceLength = 0}) async {
+    return wait(() => insertBlock('$name ', data: data, textStyle: textStyle, prefix: '@', backSpaceLength: backSpaceLength));
   }
 
   Future insertChannelName(String name,
-      {String data = '', TextStyle textStyle, bool backSpace = false}) async {
-    return wait(() => insertBlock('$name ', data: data, textStyle: textStyle, prefix: '#', backSpace: backSpace));
+      {String data = '', TextStyle textStyle, int backSpaceLength = 0}) async {
+    return wait(() => insertBlock('$name ', data: data, textStyle: textStyle, prefix: '#', backSpaceLength: backSpaceLength));
   }
 
   Future insertBlock(String name,
-      {String data = '', TextStyle textStyle, String prefix = '', bool backSpace = false}) {
+      {String data = '', TextStyle textStyle, String prefix = '', int backSpaceLength = 0}) {
     textStyle ??= _defaultRichTextStyle;
     return wait(() => _channel.invokeMethod("insertBlock", {
       'name': name,
       'data': data,
       'prefix': prefix,
-      'backSpace': backSpace,
+      'backSpaceLength': backSpaceLength,
       'textStyle': {
         'color': textStyle.color.value,
         'fontSize': textStyle.fontSize,
