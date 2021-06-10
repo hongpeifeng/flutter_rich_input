@@ -8,7 +8,9 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 
 import androidx.annotation.NonNull;
 
@@ -29,6 +31,7 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
 
     private Context mContext;
     private final EditText mEditText;
+    private final MaxHeightScrollView mContainer;
     private MethodChannel methodChannel;
     private double mTextLineHeight;
 
@@ -37,11 +40,17 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
     public NativeEditView(Context context, int viewId, Map<String, Object> creationParams, BinaryMessenger
             messenger) {
         mContext = context;
+
+        mEditText = new EditText(context);
+        mContainer = new MaxHeightScrollView(context);
+        mContainer.addView(mEditText);
+        mContainer.setHorizontalScrollBarEnabled(false);
+        mContainer.setVerticalScrollBarEnabled(false);
+
 //        int resId = context.getResources().getIdentifier("NativeEditTextTheme", "style", mContext.getPackageName());
 //        mEditText = new EditText(new ContextThemeWrapper(context, resId));
         // 修改textSelectHandle等样式颜色等，可以直接在app模块的主题中设置相关属性
         // 如果还需要修改图片的话，可以使用上面注释中的方式
-        mEditText = new EditText(context);
         initViewParams(creationParams);
         initMethodChannel(messenger, viewId);
     }
@@ -49,7 +58,7 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
     private void initViewParams(Map<String, Object> params) {
         CreationParams creationParams = new CreationParams(params);
         Log.d(TAG, "initViewParams: " + creationParams);
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         mEditText.setMinLines(1);
         mEditText.setGravity(Gravity.CENTER_VERTICAL);
         mEditText.setLayoutParams(layoutParams);
@@ -58,8 +67,9 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
         double textHeightRatio = (float) creationParams.getTextStyle().getHeight();
 
         double verticalPaddingDp = ((DEFAULT_HEIGHT - textSize) / 2);
-        int verticalPadding = Utils.dip2px(mContext, (float) (verticalPaddingDp - (textHeightRatio - 1) * textSize));
-        mEditText.setPadding(Utils.dip2px(mContext, 14), verticalPadding, Utils.dip2px(mContext, 6), verticalPadding);
+        int verticalPadding = Utils.dip2px(mContext, (float) (verticalPaddingDp - (textHeightRatio - 1) * textSize)) / 2;
+        mEditText.setPadding(Utils.dip2px(mContext, 12), verticalPadding, Utils.dip2px(mContext, 4), verticalPadding);
+        mContainer.setPadding(0, verticalPadding, 0, verticalPadding);
 
         mEditText.setWidth(Utils.dip2px(this.mEditText.getContext(), (float) creationParams.getWidth()));
         mEditText.setText(creationParams.getText());
@@ -117,7 +127,6 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
                 double newHeight = Utils.px2dip(mContext, (float) ((after - 1) * mTextLineHeight)) + DEFAULT_HEIGHT;
                 Log.d(TAG, "onTextRowChanged: before " + before + ", after " + after + ", newHeight " + newHeight);
                 methodChannel.invokeMethod("updateHeight", newHeight);
-                mEditText.setNestedScrollingEnabled(true);
             }
         });
 
@@ -159,7 +168,7 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
 
     @Override
     public View getView() {
-        return mEditText;
+        return mContainer;
     }
 
     @Override
