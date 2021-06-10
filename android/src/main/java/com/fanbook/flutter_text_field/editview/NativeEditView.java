@@ -1,7 +1,6 @@
 package com.fanbook.flutter_text_field.editview;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
@@ -10,7 +9,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
-import android.widget.Scroller;
 
 import androidx.annotation.NonNull;
 
@@ -39,6 +37,10 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
     public NativeEditView(Context context, int viewId, Map<String, Object> creationParams, BinaryMessenger
             messenger) {
         mContext = context;
+//        int resId = context.getResources().getIdentifier("NativeEditTextTheme", "style", mContext.getPackageName());
+//        mEditText = new EditText(new ContextThemeWrapper(context, resId));
+        // 修改textSelectHandle等样式颜色等，可以直接在app模块的主题中设置相关属性
+        // 如果还需要修改图片的话，可以使用上面注释中的方式
         mEditText = new EditText(context);
         initViewParams(creationParams);
         initMethodChannel(messenger, viewId);
@@ -55,7 +57,7 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
         double textSize = creationParams.getTextStyle().getFontSize();
         double textHeightRatio = (float) creationParams.getTextStyle().getHeight();
 
-        double verticalPaddingDp =  ((DEFAULT_HEIGHT - textSize) / 2);
+        double verticalPaddingDp = ((DEFAULT_HEIGHT - textSize) / 2);
         int verticalPadding = Utils.dip2px(mContext, (float) (verticalPaddingDp - (textHeightRatio - 1) * textSize));
         mEditText.setPadding(Utils.dip2px(mContext, 14), verticalPadding, Utils.dip2px(mContext, 6), verticalPadding);
 
@@ -64,8 +66,8 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
         mEditText.setTextColor((int) creationParams.getTextStyle().getColor());
         mEditText.setTextSize((float) textSize);
 
-        Utils.setTextLineHeight(mEditText, (float)textHeightRatio);
-        mTextLineHeight =  Utils.getTextLineHeight(mEditText, (float)textHeightRatio) + 10;
+        Utils.setTextLineHeight(mEditText, (float) textHeightRatio);
+        mTextLineHeight = Utils.getTextLineHeight(mEditText, (float) textHeightRatio) + 10;
 
         mEditText.setHint(creationParams.getPlaceHolder());
         mEditText.setHintTextColor((int) creationParams.getPlaceHolderStyle().getColor());
@@ -112,7 +114,7 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
             }
 
             private void onTextRowChanged(int before, int after) {
-                double newHeight = Utils.px2dip(mContext, (float) ((after - 1) * mTextLineHeight)) + DEFAULT_HEIGHT ;
+                double newHeight = Utils.px2dip(mContext, (float) ((after - 1) * mTextLineHeight)) + DEFAULT_HEIGHT;
                 Log.d(TAG, "onTextRowChanged: before " + before + ", after " + after + ", newHeight " + newHeight);
                 methodChannel.invokeMethod("updateHeight", newHeight);
                 mEditText.setNestedScrollingEnabled(true);
