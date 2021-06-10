@@ -9,7 +9,7 @@ import Foundation
 import Flutter
 
 
-class YYTextFieldFactory :NSObject,FlutterPlatformViewFactory{
+class RichTextFieldFactory :NSObject,FlutterPlatformViewFactory{
     
     var messenger:FlutterBinaryMessenger!
     
@@ -19,7 +19,7 @@ class YYTextFieldFactory :NSObject,FlutterPlatformViewFactory{
 }
     
     func create(withFrame frame: CGRect, viewIdentifier viewId: Int64, arguments args: Any?) -> FlutterPlatformView {
-        let ret = YYTextField(frame: frame, viewId: viewId, args: args, messenger: messenger)
+        let ret = RichTextField(frame: frame, viewId: viewId, args: args, messenger: messenger)
         return ret
     }
     

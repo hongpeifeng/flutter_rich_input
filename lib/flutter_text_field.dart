@@ -10,28 +10,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
-class YYTextEditingValue {
+class RichTextEditingValue {
   final String text;
   final String data;
   final TextRange selection;
   final String inputText;
 
-  const YYTextEditingValue({
+  const RichTextEditingValue({
     this.text = '',
     this.data = '',
     this.inputText = '',
     this.selection = const TextRange.collapsed(0),
   });
 
-  static const YYTextEditingValue empty = YYTextEditingValue();
+  static const RichTextEditingValue empty = RichTextEditingValue();
 
-  YYTextEditingValue copyWith({
+  RichTextEditingValue copyWith({
     String text,
     String data,
     String inputText,
     TextRange selection,
   }) {
-    return YYTextEditingValue(
+    return RichTextEditingValue(
       text: text ?? this.text,
       data: data ?? this.data,
       inputText: inputText ?? '',
@@ -39,9 +39,9 @@ class YYTextEditingValue {
     );
   }
 
-  static YYTextEditingValue fromJSON(Map encoded) {
-    if (encoded == null) return YYTextEditingValue.empty;
-    return YYTextEditingValue(
+  static RichTextEditingValue fromJSON(Map encoded) {
+    if (encoded == null) return RichTextEditingValue.empty;
+    return RichTextEditingValue(
       text: encoded['text'] as String,
       data: encoded['data'] as String,
       selection: TextRange(
@@ -53,7 +53,7 @@ class YYTextEditingValue {
   }
 }
 
-class YYTextFieldController extends ValueNotifier<YYTextEditingValue> {
+class RichTextFieldController extends ValueNotifier<RichTextEditingValue> {
   MethodChannel _channel;
   TextStyle _defaultRichTextStyle;
 
@@ -69,15 +69,25 @@ class YYTextFieldController extends ValueNotifier<YYTextEditingValue> {
 
   String get data => value.data;
 
-  YYTextFieldController({TextStyle defaultRichTextStyle})
-      : super(YYTextEditingValue.empty) {
+  RichTextFieldController({TextStyle defaultRichTextStyle})
+      : super(RichTextEditingValue.empty) {
     _defaultRichTextStyle = defaultRichTextStyle ??
         TextStyle(color: Colors.lightBlueAccent, fontSize: 14, height: 1.17);
   }
 
+  Future wait(Function func) async {
+    for (int i = 0; i < 5; i++) {
+      if (_channel != null) {
+        return func?.call();
+      }
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+    return Future.value();
+  }
+
   void setViewId(String viewId) {
     if (_channel != null) return;
-    _channel = MethodChannel('com.fanbook.yytextfield_$viewId');
+    _channel = MethodChannel('com.fanbook.rich_textfield_$viewId');
   }
 
   void setMethodCallHandler(Future<dynamic> Function(MethodCall call) handler) {
@@ -85,48 +95,64 @@ class YYTextFieldController extends ValueNotifier<YYTextEditingValue> {
   }
 
   Future insertText(String text) async {
-    return _channel.invokeMethod("insertText", text);
+    return wait(() => _channel.invokeMethod("insertText", text));
+  }
+
+  Future updateWidth(double width) async {
+    return wait(() => _channel.invokeMethod("updateWidth", width));
   }
 
   Future insertAtName(String name,
-      {String data = '', TextStyle textStyle}) async {
-    insertBlock('$name ', data: data, textStyle: textStyle, prefix: '@');
+      {String data = '', TextStyle textStyle, int backSpaceLength = 0}) async {
+    return wait(() => insertBlock('$name ',
+        data: data,
+        textStyle: textStyle,
+        prefix: '@',
+        backSpaceLength: backSpaceLength));
   }
 
   Future insertChannelName(String name,
-      {String data = '', TextStyle textStyle}) async {
-    insertBlock('$name ', data: data, textStyle: textStyle, prefix: '#');
+      {String data = '', TextStyle textStyle, int backSpaceLength = 0}) async {
+    return wait(() => insertBlock('$name ',
+        data: data,
+        textStyle: textStyle,
+        prefix: '#',
+        backSpaceLength: backSpaceLength));
   }
 
   Future insertBlock(String name,
-      {String data = '', TextStyle textStyle, String prefix = ''}) {
+      {String data = '',
+      TextStyle textStyle,
+      String prefix = '',
+      int backSpaceLength = 0}) {
     textStyle ??= _defaultRichTextStyle;
-    return _channel.invokeMethod("insertBlock", {
-      'name': name,
-      'data': data,
-      'prefix': prefix,
-      'textStyle': {
-        'color': textStyle.color.value,
-        'fontSize': textStyle.fontSize,
-        'height': textStyle.height ?? 1.17
-      }
-    });
+    return wait(() => _channel.invokeMethod("insertBlock", {
+          'name': name,
+          'data': data,
+          'prefix': prefix,
+          'backSpaceLength': backSpaceLength,
+          'textStyle': {
+            'color': textStyle.color.value,
+            'fontSize': textStyle.fontSize,
+            'height': textStyle.height ?? 1.17
+          }
+        }));
   }
 
   Future updateFocus(bool focus) async {
-    return _channel.invokeMethod("updateFocus", focus);
+    return wait(() => _channel.invokeMethod("updateFocus", focus));
   }
 
   Future replace(String text, TextRange range) async {
-    return _channel.invokeMethod("replace", {
-      'text': text,
-      'selection_start': range.start,
-      'selection_end': range.end,
-    });
+    return wait(() => _channel.invokeMethod("replace", {
+          'text': text,
+          'selection_start': range.start,
+          'selection_end': range.end,
+        }));
   }
 
   Future setAlpha(double alpha) async {
-    return _channel.invokeMethod("setAlpha", alpha);
+    return wait(() => _channel.invokeMethod("setAlpha", alpha));
   }
 
   Future replaceAll(String text) async {
@@ -138,17 +164,17 @@ class YYTextFieldController extends ValueNotifier<YYTextEditingValue> {
   }
 
   Future setText(String text) async {
-    return _channel.invokeMethod("setText", text);
+    return wait(() => _channel.invokeMethod("setText", text));
   }
 
   @override
-  set value(YYTextEditingValue newValue) {
+  set value(RichTextEditingValue newValue) {
     super.value = newValue;
   }
 }
 
-class YYTextField extends StatefulWidget {
-  final YYTextFieldController controller;
+class RichTextField extends StatefulWidget {
+  final RichTextFieldController controller;
   final FocusNode focusNode;
   final String text;
   final TextStyle textStyle;
@@ -157,12 +183,14 @@ class YYTextField extends StatefulWidget {
   final int maxLength;
   final double width;
   final double height;
+  final double maxHeight;
+  final double minHeight;
   final VoidCallback onEditingComplete;
   final Function(String) onSubmitted;
   final Function(String) onChanged;
   final bool autoFocus;
 
-  const YYTextField({
+  const RichTextField({
     @required this.controller,
     @required this.focusNode,
     this.text = '',
@@ -172,6 +200,8 @@ class YYTextField extends StatefulWidget {
     this.maxLength = 5000,
     this.width,
     this.height,
+    this.maxHeight = 142,
+    this.minHeight = 32,
     this.onEditingComplete,
     this.onSubmitted,
     this.onChanged,
@@ -179,18 +209,18 @@ class YYTextField extends StatefulWidget {
   });
 
   @override
-  _YYTextFieldState createState() => _YYTextFieldState();
+  _RichTextFieldState createState() => _RichTextFieldState();
 }
 
-class _YYTextFieldState extends State<YYTextField> {
+class _RichTextFieldState extends State<RichTextField> {
   double _height = 40;
-
-  final viewType = 'com.fanbook.yytextfield';
 
   Map createParams() {
     return {
       'width': widget.width ?? MediaQuery.of(context).size.width,
       'height': widget.height,
+      'maxHeight': widget.maxHeight,
+      'minHeight': widget.minHeight,
       'text': widget.text,
       'textStyle': {
         'color': widget.textStyle.color.value,
@@ -226,7 +256,7 @@ class _YYTextFieldState extends State<YYTextField> {
         break;
       case 'updateValue':
         final Map temp = call.arguments;
-        final value = YYTextEditingValue.fromJSON(temp);
+        final value = RichTextEditingValue.fromJSON(temp);
         widget.controller.value = value;
         widget.onChanged?.call(value.text);
         break;
@@ -242,11 +272,14 @@ class _YYTextFieldState extends State<YYTextField> {
 
   @override
   void initState() {
-    if (widget.autoFocus)
-      Future.delayed(const Duration(seconds: 1)).then((_) {
-        widget.controller.updateFocus(true);
-      });
+    if (widget.autoFocus) widget.controller.updateFocus(true);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    widget.controller.setMethodCallHandler(null);
+    super.dispose();
   }
 
   @override
@@ -260,7 +293,7 @@ class _YYTextFieldState extends State<YYTextField> {
             widget.controller.updateFocus(focus);
           },
           child: UiKitView(
-            viewType: viewType,
+            viewType: "com.fanbook.rich_textfield",
             creationParams: createParams(),
             creationParamsCodec: const StandardMessageCodec(),
             onPlatformViewCreated: (viewId) {
@@ -285,7 +318,7 @@ class _YYTextFieldState extends State<YYTextField> {
             widget.controller.updateFocus(focus);
           },
           child: PlatformViewLink(
-            viewType: viewType,
+            viewType: "com.fanbook.rich_textfield",
             surfaceFactory: (context, controller) {
               return AndroidViewSurface(
                 controller: controller,
@@ -301,7 +334,7 @@ class _YYTextFieldState extends State<YYTextField> {
               params.onPlatformViewCreated(params.id);
               return PlatformViewsService.initSurfaceAndroidView(
                 id: params.id,
-                viewType: viewType,
+                viewType: "com.fanbook.rich_textfield",
                 layoutDirection: TextDirection.ltr,
                 creationParams: createParams(),
                 creationParamsCodec: const StandardMessageCodec(),

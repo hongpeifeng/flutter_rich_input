@@ -14,7 +14,7 @@ public class FlutterTextFieldPlugin implements FlutterPlugin {
   /// when the Flutter Engine is detached from the Activity
 //  private MethodChannel channel;
 
-  public static final String VIEW_TYPE_ID = "com.fanbook.yytextfield";
+  public static final String VIEW_TYPE_ID = "com.fanbook.rich_textfield";
 
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {

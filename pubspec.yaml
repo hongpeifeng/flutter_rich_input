@@ -31,7 +31,7 @@ flutter:
         package: com.fanbook.flutter_text_field
         pluginClass: FlutterTextFieldPlugin
       ios:
-        pluginClass: YYTextFieldPlugin
+        pluginClass: RichTextFieldPlugin
     # -------------------
 
   # To add assets to your plugin package, add an assets section, like this:

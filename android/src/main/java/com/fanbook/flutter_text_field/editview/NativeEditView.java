@@ -9,8 +9,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 
 import androidx.annotation.NonNull;
 

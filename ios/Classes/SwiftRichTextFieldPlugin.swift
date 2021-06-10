@@ -8,10 +8,10 @@
 import Foundation
 import Flutter
 
-public class SwiftYYTextFieldPlugin : NSObject,FlutterPlugin{
+public class SwiftRichTextFieldPlugin : NSObject,FlutterPlugin{
     
     public class func register(with registrar: FlutterPluginRegistrar) {
-        registrar.register(YYTextFieldFactory.init(messenger: registrar.messenger()), withId: "com.fanbook.yytextfield")
+        registrar.register(RichTextFieldFactory.init(messenger: registrar.messenger()), withId: "com.fanbook.rich_textfield")
     }
     
 }

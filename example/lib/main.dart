@@ -31,13 +31,13 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _viewId = 0;
-  YYTextFieldController _controller = YYTextFieldController();
+  RichTextFieldController _controller = RichTextFieldController();
   FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
     _controller.addListener(() {
-      print('value: ${_controller.value}');
+      print('value: ${_controller.value.text} / data: ${_controller.data}');
     });
     super.initState();
   }
@@ -73,44 +73,45 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Container(
               decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
               width: 400,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 142),
-                child: YYTextField(
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  text: '1233',
-                  // autoFocus: true,
-                  textStyle: Theme.of(context)
-                      .textTheme
-                      .bodyText2
-                      .copyWith(color: Colors.black, fontSize: 17),
-                  placeHolder: '请输入....',
-                  placeHolderStyle: Theme.of(context)
-                      .textTheme
-                      .bodyText1
-                      .copyWith(color: Colors.redAccent, fontSize: 17),
-                  maxLength: 5000,
-                  onChanged: (str) {
-                    print('onChanged: $str');
-                  },
-                  onSubmitted: (str) {
-                    print('onSubmitted: $str');
-                  },
-                  onEditingComplete: () {
-                    print('onEditingComplete');
-                  },
-                ),
+              child: RichTextField(
+                controller: _controller,
+                focusNode: _focusNode,
+                text: '1233',
+//              autoFocus: true,
+                textStyle: Theme.of(context)
+                    .textTheme
+                    .bodyText2
+                    .copyWith(color: Colors.black, fontSize: 14),
+                placeHolder: '请输入....',
+                placeHolderStyle: Theme.of(context)
+                    .textTheme
+                    .bodyText1
+                    .copyWith(color: Colors.redAccent, fontSize: 18),
+                maxLength: 5000,
+                height: 32,
+                minHeight: 32,
+                maxHeight: 280,
+                onChanged: (str) {
+                  print('onChanged: $str');
+                },
+                onSubmitted: (str) {
+                  print('onSubmitted: $str');
+                },
+                onEditingComplete: () {
+                  print('onEditingComplete');
+                },
               ),
             ),
           ),
           TextButton(
               onPressed: () {
-                _controller.insertAtName("周大蝠", data: "@{dfdsfsdfsdgdf}");
+                _controller.insertAtName("周大蝠😀", data: "@{dfdsfsdfsdgdf}");
               },
               child: Text('插入@')),
           TextButton(
               onPressed: () {
-                _controller.insertChannelName('蝠道', data: "#{fdsgdfgdfgdass}");
+                _controller.insertChannelName('蝠道👀😝',
+                    data: "#{fdsgdfgdfgdass}");
               },
               child: Text('插入#')),
           TextButton(
