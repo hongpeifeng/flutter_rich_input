@@ -86,6 +86,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     .bodyText1
                     .copyWith(color: Colors.redAccent, fontSize: 18),
                 maxLength: 5000,
+                height: 32,
+                minHeight: 32,
+                maxHeight: 280,
                 onChanged: (str) {
                   print('onChanged: $str');
                 },

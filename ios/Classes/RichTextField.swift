@@ -33,10 +33,11 @@ class RichTextField: NSObject, FlutterPlatformView {
         self.viewId = viewId
         // 页面初始化
         let args = args as? [String: Any]
+        let height = (args?["height"] as? CGFloat) ?? 32
         var _frame = frame
         if _frame.size.width == 0 {
             let width = (args?["width"] as? CGFloat) ?? UIScreen.main.bounds.size.width
-            _frame = CGRect(x: frame.origin.x, y: frame.origin.y, width: width, height: 32)
+            _frame = CGRect(x: frame.origin.x, y: frame.origin.y, width: width, height: height)
         }
         super.init()
 
@@ -51,7 +52,9 @@ class RichTextField: NSObject, FlutterPlatformView {
         let placeHolder = (args?["placeHolder"] as? String) ?? ""
         let maxLength = (args?["maxLength"] as? Int) ?? 5000
         let done = (args?["done"] as? Bool) ?? false
-        let height = (args?["height"] as? CGFloat) ?? 32
+        
+        let minHeight = (args?["minHeight"] as? CGFloat) ?? 32
+        let maxHeight = (args?["maxHeight"] as? CGFloat) ?? 142
         let fontSize = (textStyle?["fontSize"] as? CGFloat) ?? 17
         defaultAttributes = textStyle2Attribute(textStyle: textStyle, defaultAttr: defaultAttributes)
 
@@ -62,8 +65,8 @@ class RichTextField: NSObject, FlutterPlatformView {
         textView.textContainerInset = UIEdgeInsets(top: 8, left: 10, bottom: 4, right: 0)
         textView.delegate = self
         textView.backgroundColor = UIColor.clear
-        textView.maxHeight = 142
-        textView.minHeight = height
+        textView.maxHeight = maxHeight
+        textView.minHeight = minHeight
         textView.attributedPlaceholder = NSAttributedString(string: placeHolder, attributes: textStyle2Attribute(textStyle: placeHolderStyle, defaultAttr: defaultAttributes))
         textView.maxLength = maxLength
         if done { textView.returnKeyType = .done }

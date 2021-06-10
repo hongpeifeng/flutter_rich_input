@@ -172,6 +172,8 @@ class RichTextField extends StatefulWidget {
   final int maxLength;
   final double width;
   final double height;
+  final double maxHeight;
+  final double minHeight;
   final VoidCallback onEditingComplete;
   final Function(String) onSubmitted;
   final Function(String) onChanged;
@@ -187,6 +189,8 @@ class RichTextField extends StatefulWidget {
     this.maxLength = 5000,
     this.width,
     this.height,
+    this.maxHeight = 142,
+    this.minHeight = 32,
     this.onEditingComplete,
     this.onSubmitted,
     this.onChanged,
@@ -207,8 +211,9 @@ class _RichTextFieldState extends State<RichTextField> {
           .of(context)
           .size
           .width,
-
       'height': widget.height,
+      'maxHeight': widget.maxHeight,
+      'minHeight': widget.minHeight,
       'text': widget.text,
       'textStyle': {
         'color': widget.textStyle.color.value,
