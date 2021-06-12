@@ -8,10 +8,16 @@ import com.fanbook.flutter_text_field.Utils;
 
 public class MaxHeightScrollView extends ScrollView {
 
+    // max height unit - dp
     private int maxHeight;
 
     public MaxHeightScrollView(Context context) {
+        this(context, 142);
+    }
+
+    public MaxHeightScrollView(Context context, int maxHeight) {
         this(context, null);
+        this.maxHeight = Utils.dip2px(context, maxHeight);
     }
 
     public MaxHeightScrollView(Context context, AttributeSet attrs) {
@@ -20,10 +26,6 @@ public class MaxHeightScrollView extends ScrollView {
 
     public MaxHeightScrollView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-
-//        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.MaxHeightScrollView);
-        maxHeight = Utils.dip2px(context, 142);
-//        typedArray.recycle();
     }
 
     @Override

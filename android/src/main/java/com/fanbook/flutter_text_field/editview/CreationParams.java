@@ -8,6 +8,8 @@ public class CreationParams {
 
     private double width;
     private double height;
+    private double maxHeight;
+    private double minHeight;
     private String text;
     private TextStyle textStyle;
     private String placeHolder;
@@ -24,6 +26,12 @@ public class CreationParams {
 
         Object height = params.get("height");
         this.height = height == null ? 0 : (double) height;
+
+        Object maxHeight = params.get("maxHeight");
+        this.maxHeight = maxHeight == null ? 0 : (double) maxHeight;
+
+        Object minHeight = params.get("minHeight");
+        this.minHeight = minHeight == null ? 0 : (double) minHeight;
 
         Object text = params.get("text");
         this.text = text == null ? "" : (String) text;
@@ -60,6 +68,14 @@ public class CreationParams {
 
     public String getText() {
         return text;
+    }
+
+    public double getMaxHeight() {
+        return maxHeight;
+    }
+
+    public double getMinHeight() {
+        return minHeight;
     }
 
     public TextStyle getTextStyle() {
@@ -138,6 +154,8 @@ public class CreationParams {
         return "CreationParams{" +
                 "width=" + width +
                 ", height=" + height +
+                ", maxHeight=" + maxHeight +
+                ", minHeight=" + minHeight +
                 ", text='" + text + '\'' +
                 ", textStyle=" + textStyle +
                 ", placeHolder='" + placeHolder + '\'' +

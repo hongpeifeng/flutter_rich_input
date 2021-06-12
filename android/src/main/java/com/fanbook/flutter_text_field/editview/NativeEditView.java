@@ -29,7 +29,7 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
 
     private Context mContext;
     private final EditText mEditText;
-    private final MaxHeightScrollView mContainer;
+    private MaxHeightScrollView mContainer;
     private MethodChannel methodChannel;
     private double mTextLineHeight;
 
@@ -38,12 +38,7 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
     public NativeEditView(Context context, int viewId, Map<String, Object> creationParams, BinaryMessenger
             messenger) {
         mContext = context;
-
         mEditText = new EditText(context);
-        mContainer = new MaxHeightScrollView(context);
-        mContainer.addView(mEditText);
-        mContainer.setHorizontalScrollBarEnabled(false);
-        mContainer.setVerticalScrollBarEnabled(false);
 
 //        int resId = context.getResources().getIdentifier("NativeEditTextTheme", "style", mContext.getPackageName());
 //        mEditText = new EditText(new ContextThemeWrapper(context, resId));
@@ -67,7 +62,6 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
         double verticalPaddingDp = ((DEFAULT_HEIGHT - textSize) / 2);
         int verticalPadding = Utils.dip2px(mContext, (float) (verticalPaddingDp - (textHeightRatio - 1) * textSize)) / 2;
         mEditText.setPadding(Utils.dip2px(mContext, 12), verticalPadding, Utils.dip2px(mContext, 4), verticalPadding);
-        mContainer.setPadding(0, verticalPadding, 0, verticalPadding);
 
         mEditText.setWidth(Utils.dip2px(this.mEditText.getContext(), (float) creationParams.getWidth()));
         mEditText.setText(creationParams.getText());
@@ -75,7 +69,7 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
         mEditText.setTextSize((float) textSize);
 
         Utils.setTextLineHeight(mEditText, (float) textHeightRatio);
-        mTextLineHeight = Utils.getTextLineHeight(mEditText, (float) textHeightRatio) + 10;
+        mTextLineHeight = Utils.getTextLineHeight(mEditText, (float) textHeightRatio);
 
         mEditText.setHint(creationParams.getPlaceHolder());
         mEditText.setHintTextColor((int) creationParams.getPlaceHolderStyle().getColor());
@@ -83,6 +77,12 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
         mEditText.setFilters(filters);
         mEditText.setBackground(null);
         mEditText.setLongClickable(true);
+
+        mContainer = new MaxHeightScrollView(mContext, (int) creationParams.getMaxHeight());
+        mContainer.addView(mEditText);
+        mContainer.setPadding(0, verticalPadding, 0, verticalPadding);
+        mContainer.setHorizontalScrollBarEnabled(false);
+        mContainer.setVerticalScrollBarEnabled(false);
     }
 
     private void initMethodChannel(BinaryMessenger messenger, int viewId) {
