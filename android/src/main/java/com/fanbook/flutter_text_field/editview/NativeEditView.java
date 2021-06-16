@@ -3,6 +3,7 @@ package com.fanbook.flutter_text_field.editview;
 import android.content.Context;
 import android.text.Editable;
 import android.text.InputFilter;
+import android.text.InputType;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextWatcher;
@@ -256,7 +257,8 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
         Log.d(TAG, "handleInsertBlock: " + blockParams);
         final TargetSpan span = new TargetSpan(blockParams.getPrefix(), blockParams.getName(), blockParams.getData());
         SpannableString spannableString = new SpannableString(span.getText());
-        spannableString.setSpan(span, 0, spannableString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        // 使用SPAN_EXCLUSIVE_EXCLUSIVE时会导致换行键报错
+        spannableString.setSpan(span, 0, spannableString.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
         int currentSelectionStart = mEditText.getSelectionStart();
         int backSpaceLength = blockParams.getBackSpaceLength();
         if (currentSelectionStart < backSpaceLength) {
