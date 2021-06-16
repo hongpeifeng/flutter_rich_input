@@ -11,7 +11,7 @@ public class TargetSpan extends TextAppearanceSpan {
     private final String text;
 
     public TargetSpan(String prefix, String name, String data) {
-        this(prefix, name, data, Color.BLUE);
+        this(prefix, name, data, 0xff3451b1);
     }
 
     public TargetSpan(String prefix, String name, String data, int color) {
