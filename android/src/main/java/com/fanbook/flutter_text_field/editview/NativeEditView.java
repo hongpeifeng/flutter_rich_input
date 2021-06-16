@@ -247,9 +247,8 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
             result.error(call.method, "replace range error", null);
         } else {
             mEditText.getText().replace(start, end, content);
-            mEditText.setSelection(start + content.length());
+            result.success(null);
         }
-        result.success(null);
     }
 
     private void handleInsertBlock(MethodCall call, MethodChannel.Result result) {
