@@ -16,12 +16,12 @@ public class TargetSpan extends TextAppearanceSpan {
 
     public TargetSpan(String prefix, String name, String data, int color) {
         super(null, 0, 0, ColorStateList.valueOf(color), null);
+        if (!"@".equals(prefix) && !"#".equals(prefix) && !(name.startsWith("[") && name.endsWith("]"))) {
+            throw new IllegalArgumentException("Only prefix '@' or '#', or data with '[xxx]' supported!!!");
+        }
         this.prefix = prefix;
         this.name = name;
         this.data = data;
-        if (!"@".equals(prefix) && !"#".equals(prefix)) {
-            throw new IllegalArgumentException("Only prefix '@' or '#' supported!!!");
-        }
         this.text = prefix + name;
     }
 
