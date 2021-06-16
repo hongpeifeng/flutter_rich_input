@@ -150,8 +150,8 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
                     Map<String, Object> params = new HashMap<>();
                     params.put("text", mEditText.getText().toString());
                     params.put("data", getDatas());
-                    params.put("selection_start", start);
-                    params.put("selection_end", start + count);
+                    params.put("selection_start", mEditText.getSelectionStart());
+                    params.put("selection_end", mEditText.getSelectionEnd());
                     String inputText = count == 0 ? "" : s.subSequence(start, start + count).toString();
                     params.put("input_text", inputText);
                     methodChannel.invokeMethod("updateValue", params);
@@ -201,6 +201,7 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
                 break;
             case "setAlpha":
                 handleSetAlpha(call, result);
+                break;
             default:
                 result.notImplemented();
                 break;
@@ -257,8 +258,13 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
         final TargetSpan span = new TargetSpan(blockParams.getPrefix(), blockParams.getName(), blockParams.getData());
         SpannableString spannableString = new SpannableString(span.getText());
         spannableString.setSpan(span, 0, spannableString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        // 光标处插入span
-        mEditText.getText().insert(mEditText.getSelectionStart(), spannableString);
+        int currentSelectionStart = mEditText.getSelectionStart();
+        // 插入block时需要将app那边输入的@#去掉，根据这个backspaceLength来判断
+        if (blockParams.getBackSpaceLength() > 0) {
+            mEditText.getText().replace(currentSelectionStart - blockParams.getBackSpaceLength(), currentSelectionStart, spannableString);
+        } else {
+            mEditText.getText().insert(mEditText.getSelectionStart(), spannableString);
+        }
         result.success(null);
     }
 
