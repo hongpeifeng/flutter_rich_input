@@ -3,6 +3,8 @@ package com.fanbook.flutter_text_field.editview;
 import android.content.Context;
 import android.text.Editable;
 import android.text.InputFilter;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
@@ -13,6 +15,10 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 
 import com.fanbook.flutter_text_field.Utils;
+import com.fanbook.flutter_text_field.messages.BlockParams;
+import com.fanbook.flutter_text_field.messages.CreationParams;
+import com.fanbook.flutter_text_field.messages.ReplaceParams;
+import com.fanbook.flutter_text_field.spans.TargetSpan;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +33,7 @@ import static com.fanbook.flutter_text_field.FlutterTextFieldPlugin.VIEW_TYPE_ID
 public class NativeEditView implements PlatformView, MethodChannel.MethodCallHandler {
     private static final String TAG = "NativeEditView";
 
-    private Context mContext;
+    private final Context mContext;
     private final EditText mEditText;
     private MaxHeightScrollView mContainer;
     private MethodChannel methodChannel;
@@ -65,6 +71,9 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
 
         mEditText.setWidth(Utils.dip2px(this.mEditText.getContext(), (float) creationParams.getWidth()));
         mEditText.setText(creationParams.getText());
+        if (creationParams.getText() != null && creationParams.getText().length() > 0) {
+            mEditText.setSelection(creationParams.getText().length());
+        }
         mEditText.setTextColor((int) creationParams.getTextStyle().getColor());
         mEditText.setTextSize((float) textSize);
 
@@ -90,30 +99,64 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
         methodChannel.setMethodCallHandler(this);
         mEditText.addTextChangedListener(new TextWatcher() {
             int beforeRow = 0;
+            int spanLength = -1;
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                Log.d(TAG, "beforeTextChanged: " + s.toString());
+                Log.d(TAG, "beforeTextChanged: " + s.toString() + " start:" + start + ", count:" + count + ", after:" + after);
                 beforeRow = mEditText.getLineCount();
-                mEditText.setNestedScrollingEnabled(false);
+                if (start <= 0) return;
+                // 获取光标处的TargetSpan
+                TargetSpan[] spans = mEditText.getEditableText().getSpans(start + count, start + count, TargetSpan.class);
+                if (spans == null || spans.length <= 0) return;
+                // count > after 删除，count < after 输入
+                // 1.删除时，如果是TargetSpan,需要一次性删除整个span,所以这里记录span的长度，然后在onTextChanged 回调中删除span的字符串
+                // 2.输入时，需要考虑光标的问题，如果光标处于span中，需要remove掉这个span的style,使之变成普通文本
+                if (count > after) {
+                    for (TargetSpan span : spans) {
+                        int end = mEditText.getEditableText().getSpanEnd(span);
+                        if (end != start + count) continue;
+                        String text = span.getText();
+                        // 这里长度需要减个1(del键会删除一个,所以onTextChanged回调中需少删一个)
+                        spanLength = text.length() - 1;
+                        mEditText.getText().removeSpan(span);
+                    }
+                } else if (count < after && start != mEditText.getText().length()) {
+                    for (TargetSpan span : spans) {
+                        int end = mEditText.getEditableText().getSpanEnd(span);
+                        // 光标在TargetSpan后面时不需要remove掉此span
+                        if (end == start) continue;
+                        mEditText.getText().removeSpan(span);
+                    }
+                }
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                Log.d(TAG, "onTextChanged: " + s.toString());
+                Log.d(TAG, "onTextChanged: " + s.toString() + " start:" + start + ", count:" + count);
                 int changedRow = mEditText.getLineCount();
                 if (changedRow != beforeRow) {
                     onTextRowChanged(beforeRow, changedRow);
                 }
 
-                Map<String, Object> params = new HashMap<>();
-                params.put("text", mEditText.getText().toString());
-                // TODO 加block的时候这个data需要修改
-                params.put("data", mEditText.getText().toString());
-                params.put("selection_start", start);
-                params.put("selection_end", start + count);
-                params.put("input_text", s.subSequence(start, start + count).toString());
-                methodChannel.invokeMethod("updateValue", params);
+                // 在删除span时replace会再次触发onTextChanged,　所以删除span的情况不应该走updateValue回调
+                if (spanLength > -1) {
+                    // 这里删除span
+                    int length = spanLength;
+                    spanLength = -1;
+                    mEditText.getEditableText().replace(start - length, start, "");
+                } else {
+                    // 这里走updateValue
+                    Map<String, Object> params = new HashMap<>();
+                    params.put("text", mEditText.getText().toString());
+                    params.put("data", getDatas());
+                    params.put("selection_start", start);
+                    params.put("selection_end", start + count);
+                    String inputText = count == 0 ? "" : s.subSequence(start, start + count).toString();
+                    params.put("input_text", inputText);
+                    methodChannel.invokeMethod("updateValue", params);
+                    Log.d(TAG, "onTextChanged: updateValue");
+                }
             }
 
             @Override
@@ -177,6 +220,7 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
     private void handleSetText(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
         String content = (String) call.arguments;
         mEditText.setText(content);
+        mEditText.setSelection(content.length());
         result.success(null);
     }
 
@@ -193,19 +237,28 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
     }
 
     private void handleReplace(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
-        Map<String, Object> args = (Map<String, Object>) call.arguments;
-        String content = (String) args.get("text");
-        int start = (int) args.get("selection_start");
-        int end = (int) args.get("selection_end");
+        ReplaceParams replaceParams = new ReplaceParams((Map<String, Object>) call.arguments);
+        Log.d(TAG, "handleReplace: " + replaceParams);
+        String content = replaceParams.getText();
+        int start = replaceParams.getSelectionStart();
+        int end = replaceParams.getSelectionEnd();
         if (start < 0 || end < 0 || start > end) {
             result.error(call.method, "replace range error", null);
         } else {
             mEditText.getText().replace(start, end, content);
+            mEditText.setSelection(start + content.length());
         }
         result.success(null);
     }
 
     private void handleInsertBlock(MethodCall call, MethodChannel.Result result) {
+        BlockParams blockParams = new BlockParams((Map<String, Object>) call.arguments);
+        Log.d(TAG, "handleInsertBlock: " + blockParams);
+        final TargetSpan span = new TargetSpan(blockParams.getPrefix(), blockParams.getName(), blockParams.getData());
+        SpannableString spannableString = new SpannableString(span.getText());
+        spannableString.setSpan(span, 0, spannableString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        // 光标处插入span
+        mEditText.getText().insert(mEditText.getSelectionStart(), spannableString);
         result.success(null);
     }
 
@@ -216,6 +269,19 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
     }
 
     private void handleSetAlpha(MethodCall call, MethodChannel.Result result) {
+        // TODO iOS有这个功能
         result.success(null);
+    }
+
+    private String getDatas() {
+        TargetSpan[] spans = mEditText.getEditableText().getSpans(0, mEditText.length(), TargetSpan.class);
+        String ret = mEditText.getText().toString();
+        Log.d(TAG, "text: " + ret);
+        for (TargetSpan span : spans) {
+            Log.d(TAG, "getDatas: " + span);
+            ret = ret.replace(span.getText(), span.getData());
+        }
+        Log.d(TAG, "data: " + ret);
+        return ret;
     }
 }
