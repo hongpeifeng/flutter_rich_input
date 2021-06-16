@@ -67,7 +67,7 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
 
         double verticalPaddingDp = ((DEFAULT_HEIGHT - textSize) / 2);
         int verticalPadding = Utils.dip2px(mContext, (float) (verticalPaddingDp - (textHeightRatio - 1) * textSize)) / 2;
-        mEditText.setPadding(Utils.dip2px(mContext, 12), verticalPadding, Utils.dip2px(mContext, 4), verticalPadding);
+        mEditText.setPadding(Utils.dip2px(mContext, 14), verticalPadding, Utils.dip2px(mContext, 4), verticalPadding);
 
         mEditText.setWidth(Utils.dip2px(this.mEditText.getContext(), (float) creationParams.getWidth()));
         mEditText.setText(creationParams.getText());
@@ -258,9 +258,13 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
         SpannableString spannableString = new SpannableString(span.getText());
         spannableString.setSpan(span, 0, spannableString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         int currentSelectionStart = mEditText.getSelectionStart();
+        int backSpaceLength = blockParams.getBackSpaceLength();
+        if (currentSelectionStart < backSpaceLength) {
+            throw new IllegalArgumentException("Back space length or selection start param error!!!");
+        }
         // 插入block时需要将app那边输入的@#去掉，根据这个backspaceLength来判断
         if (blockParams.getBackSpaceLength() > 0) {
-            mEditText.getText().replace(currentSelectionStart - blockParams.getBackSpaceLength(), currentSelectionStart, spannableString);
+            mEditText.getText().replace(currentSelectionStart - backSpaceLength, currentSelectionStart, spannableString);
         } else {
             mEditText.getText().insert(mEditText.getSelectionStart(), spannableString);
         }
