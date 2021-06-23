@@ -21,6 +21,11 @@ public class Utils {
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
+    public static void showSoftKeyboard(Context context, View view) {
+        InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.showSoftInput(view, 0);
+    }
+
     // 这个height是文字占高比，非文字高度值
     public static void setTextLineHeight(TextView textView, float height) {
         if (height < 1) return;

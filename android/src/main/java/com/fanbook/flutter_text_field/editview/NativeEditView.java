@@ -231,6 +231,7 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
         Log.d(TAG, "handleUpdateFocus: flutter -> android: " + focus);
         if (focus) {
             mEditText.requestFocus();
+            Utils.showSoftKeyboard(mContext, mEditText);
         } else {
             mEditText.clearFocus();
             Utils.hideSoftKeyboard(mContext, mEditText);
