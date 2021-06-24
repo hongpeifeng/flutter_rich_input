@@ -51,6 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
@@ -69,7 +70,8 @@ class _MyHomePageState extends State<MyHomePage> {
             onVerticalDragEnd: (_) {},
             onVerticalDragStart: (_) {},
             onVerticalDragUpdate: (_) {},
-            child: SizedBox(
+            child: Container(
+              decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
               width: 400,
               child: RichTextField(
                 controller: _controller,
@@ -108,7 +110,8 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Text('插入@')),
           TextButton(
               onPressed: () {
-                _controller.insertChannelName('蝠道👀😝', data: "#{fdsgdfgdfgdass}");
+                _controller.insertChannelName('蝠道👀😝',
+                    data: "#{fdsgdfgdfgdass}");
               },
               child: Text('插入#')),
           TextButton(

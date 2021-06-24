@@ -26,8 +26,12 @@ flutter:
   # be modified. They are used by the tooling to maintain consistency when
   # adding or updating assets for this project.
   plugin:
-    pluginClass: RichTextFieldPlugin
-
+    platforms:
+      android:
+        package: com.fanbook.flutter_text_field
+        pluginClass: FlutterTextFieldPlugin
+      ios:
+        pluginClass: RichTextFieldPlugin
     # -------------------
 
   # To add assets to your plugin package, add an assets section, like this:

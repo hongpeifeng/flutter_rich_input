@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="text_cursor">#FF6179F2</color>
+    <color name="text_selection">#4D6179F2</color>
+</resources>

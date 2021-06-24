@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="NativeEditTextTheme" parent="Widget.AppCompat.EditText">
+        <item name="android:background">@null</item>
+        <item name="android:textColorHighlight">@color/text_selection</item>
+        <item name="android:textCursorDrawable">@drawable/text_cursor</item>
+        <item name="android:textSelectHandle">@drawable/test_middle</item>
+        <item name="android:textSelectHandleLeft">@drawable/test_middle</item>
+        <item name="android:textSelectHandleRight">@drawable/test_middle</item>
+    </style>
+</resources>

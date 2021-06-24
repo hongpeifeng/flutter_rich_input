@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
 class RichTextEditingValue {
@@ -56,7 +57,6 @@ class RichTextFieldController extends ValueNotifier<RichTextEditingValue> {
   MethodChannel _channel;
   TextStyle _defaultRichTextStyle;
 
-
   String get text => value.text;
 
   set text(String newText) {
@@ -104,28 +104,39 @@ class RichTextFieldController extends ValueNotifier<RichTextEditingValue> {
 
   Future insertAtName(String name,
       {String data = '', TextStyle textStyle, int backSpaceLength = 0}) async {
-    return wait(() => insertBlock('$name ', data: data, textStyle: textStyle, prefix: '@', backSpaceLength: backSpaceLength));
+    return wait(() => insertBlock('$name ',
+        data: data,
+        textStyle: textStyle,
+        prefix: '@',
+        backSpaceLength: backSpaceLength));
   }
 
   Future insertChannelName(String name,
       {String data = '', TextStyle textStyle, int backSpaceLength = 0}) async {
-    return wait(() => insertBlock('$name ', data: data, textStyle: textStyle, prefix: '#', backSpaceLength: backSpaceLength));
+    return wait(() => insertBlock('$name ',
+        data: data,
+        textStyle: textStyle,
+        prefix: '#',
+        backSpaceLength: backSpaceLength));
   }
 
   Future insertBlock(String name,
-      {String data = '', TextStyle textStyle, String prefix = '', int backSpaceLength = 0}) {
+      {String data = '',
+      TextStyle textStyle,
+      String prefix = '',
+      int backSpaceLength = 0}) {
     textStyle ??= _defaultRichTextStyle;
     return wait(() => _channel.invokeMethod("insertBlock", {
-      'name': name,
-      'data': data,
-      'prefix': prefix,
-      'backSpaceLength': backSpaceLength,
-      'textStyle': {
-        'color': textStyle.color.value,
-        'fontSize': textStyle.fontSize,
-        'height': textStyle.height ?? 1.17
-      }
-    }));
+          'name': name,
+          'data': data,
+          'prefix': prefix,
+          'backSpaceLength': backSpaceLength,
+          'textStyle': {
+            'color': textStyle.color.value,
+            'fontSize': textStyle.fontSize,
+            'height': textStyle.height ?? 1.17
+          }
+        }));
   }
 
   Future updateFocus(bool focus) async {
@@ -134,10 +145,10 @@ class RichTextFieldController extends ValueNotifier<RichTextEditingValue> {
 
   Future replace(String text, TextRange range) async {
     return wait(() => _channel.invokeMethod("replace", {
-      'text': text,
-      'selection_start': range.start,
-      'selection_end': range.end,
-    }));
+          'text': text,
+          'selection_start': range.start,
+          'selection_end': range.end,
+        }));
   }
 
   Future setAlpha(double alpha) async {
@@ -204,13 +215,9 @@ class RichTextField extends StatefulWidget {
 class _RichTextFieldState extends State<RichTextField> {
   double _height = 40;
 
-
   Map createParams() {
     return {
-      'width': widget.width ?? MediaQuery
-          .of(context)
-          .size
-          .width,
+      'width': widget.width ?? MediaQuery.of(context).size.width,
       'height': widget.height,
       'maxHeight': widget.maxHeight,
       'minHeight': widget.minHeight,
@@ -240,6 +247,7 @@ class _RichTextFieldState extends State<RichTextField> {
         break;
       case 'updateFocus':
         final focus = call.arguments ?? false;
+        print('////// focus: $focus');
         if (focus) {
           widget.focusNode.requestFocus();
         } else {
@@ -264,8 +272,7 @@ class _RichTextFieldState extends State<RichTextField> {
 
   @override
   void initState() {
-    if (widget.autoFocus)
-      widget.controller.updateFocus(true);
+    if (widget.autoFocus) widget.controller.updateFocus(true);
     super.initState();
   }
 
@@ -295,16 +302,54 @@ class _RichTextFieldState extends State<RichTextField> {
             },
             gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
               new Factory<OneSequenceGestureRecognizer>(
-                    () => new EagerGestureRecognizer(),
+                () => new EagerGestureRecognizer(),
               ),
             ].toSet(),
 //            gestureRecognizers: Set()..add((() => VerticalDragGestureRecognizer())),
           ),
         ),
       );
+    } else if (Platform.isAndroid) {
+      return SizedBox(
+        height: _height,
+        child: Focus(
+          focusNode: widget.focusNode,
+          onFocusChange: (focus) {
+            widget.controller.updateFocus(focus);
+          },
+          child: PlatformViewLink(
+            viewType: "com.fanbook.rich_textfield",
+            surfaceFactory: (context, controller) {
+              return AndroidViewSurface(
+                controller: controller,
+                gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
+                  new Factory<OneSequenceGestureRecognizer>(
+                    () => new EagerGestureRecognizer(),
+                  ),
+                ].toSet(),
+                hitTestBehavior: PlatformViewHitTestBehavior.opaque,
+              );
+            },
+            onCreatePlatformView: (params) {
+              params.onPlatformViewCreated(params.id);
+              return PlatformViewsService.initSurfaceAndroidView(
+                id: params.id,
+                viewType: "com.fanbook.rich_textfield",
+                layoutDirection: TextDirection.ltr,
+                creationParams: createParams(),
+                creationParamsCodec: const StandardMessageCodec(),
+              )
+                ..addOnPlatformViewCreatedListener((id) {
+                  widget.controller.setViewId('$id');
+                  widget.controller.setMethodCallHandler(_handlerCall);
+                })
+                ..create();
+            },
+          ),
+        ),
+      );
+    } else {
+      return Text('暂不支持该平台');
     }
-    return Text('暂不支持该平台');
   }
-
-
 }
