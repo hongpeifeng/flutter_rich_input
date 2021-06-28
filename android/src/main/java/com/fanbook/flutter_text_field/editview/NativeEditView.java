@@ -256,7 +256,12 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
     private void handleInsertBlock(MethodCall call, MethodChannel.Result result) {
         BlockParams blockParams = new BlockParams((Map<String, Object>) call.arguments);
         Log.d(TAG, "handleInsertBlock: " + blockParams);
-        final TargetSpan span = new TargetSpan(blockParams.getPrefix(), blockParams.getName(), blockParams.getData());
+        int spanType = TargetSpan.spanType(blockParams.getPrefix(), blockParams.getName());
+        if (spanType == -1) {
+            result.error("10001","can not parse block", null);
+            return;
+        }
+        final TargetSpan span = new TargetSpan(spanType, blockParams.getPrefix(), blockParams.getName(), blockParams.getData());
         SpannableString spannableString = new SpannableString(span.getText());
         // 使用SPAN_EXCLUSIVE_EXCLUSIVE时会导致换行键报错
         spannableString.setSpan(span, 0, spannableString.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
