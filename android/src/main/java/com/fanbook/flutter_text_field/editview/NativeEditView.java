@@ -264,7 +264,7 @@ public class NativeEditView implements PlatformView, MethodChannel.MethodCallHan
         final TargetSpan span = new TargetSpan(spanType, blockParams.getPrefix(), blockParams.getName(), blockParams.getData());
         SpannableString spannableString = new SpannableString(span.getText());
         // 使用SPAN_EXCLUSIVE_EXCLUSIVE时会导致换行键报错
-        spannableString.setSpan(span, 0, spannableString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannableString.setSpan(span, 0, spannableString.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
         int currentSelectionStart = mEditText.getSelectionStart();
         int backSpaceLength = blockParams.getBackSpaceLength();
         if (currentSelectionStart < backSpaceLength) {

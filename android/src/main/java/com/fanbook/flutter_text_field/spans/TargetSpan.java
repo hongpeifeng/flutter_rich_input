@@ -27,7 +27,7 @@ public class TargetSpan extends TextAppearanceSpan {
     }
 
     public static int spanType(String prefix, String name) {
-        if (TextUtils.isEmpty(prefix)|| TextUtils.isEmpty(name)) return -1;
+        if (TextUtils.isEmpty(name)|| TextUtils.isEmpty(name)) return -1;
         if ("@".equals(prefix) || "#".equals(prefix)) return NAME_SPAN;
         if (name.startsWith("[") && name.endsWith("]")) return EMOJI_SPAN;
         return -1;
