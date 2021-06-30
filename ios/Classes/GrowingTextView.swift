@@ -111,7 +111,7 @@ open class GrowingTextView: UITextView {
         // Add height constraint if it is not found
         if (heightConstraint == nil) {
             heightConstraint = NSLayoutConstraint(item: self, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: height)
-            addConstraint(heightConstraint!)
+//            addConstraint(heightConstraint!)
         }
         
         // Update height constraint if needed
