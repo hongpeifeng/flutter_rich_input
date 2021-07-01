@@ -30,7 +30,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _viewId = 0;
   RichTextFieldController _controller = RichTextFieldController();
   FocusNode _focusNode = FocusNode();
 
