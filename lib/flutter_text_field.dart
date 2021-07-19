@@ -273,6 +273,7 @@ class _RichTextFieldState extends State<RichTextField> {
   @override
   void initState() {
     if (widget.autoFocus) widget.controller.updateFocus(true);
+    if (widget.height != null) _height = widget.height;
     super.initState();
   }
 
