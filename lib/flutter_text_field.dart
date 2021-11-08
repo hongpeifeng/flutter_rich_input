@@ -4,6 +4,7 @@
 // directory. You can also find a detailed instruction on how to add platforms in the `pubspec.yaml` at https://flutter.dev/docs/development/packages-and-plugins/developing-packages#plugin-platforms.
 
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -189,6 +190,7 @@ class RichTextField extends StatefulWidget {
   final Function(String) onSubmitted;
   final Function(String) onChanged;
   final bool autoFocus;
+  final bool needEagerGesture;
 
   const RichTextField({
     @required this.controller,
@@ -206,6 +208,7 @@ class RichTextField extends StatefulWidget {
     this.onSubmitted,
     this.onChanged,
     this.autoFocus = false,
+    this.needEagerGesture = true,
   });
 
   @override
@@ -285,6 +288,13 @@ class _RichTextFieldState extends State<RichTextField> {
 
   @override
   Widget build(BuildContext context) {
+    final gestureRecognizers = widget.needEagerGesture
+        ? <Factory<OneSequenceGestureRecognizer>>[
+            new Factory<OneSequenceGestureRecognizer>(
+              () => new EagerGestureRecognizer(),
+            ),
+          ].toSet()
+        : null;
     if (Platform.isIOS) {
       return SizedBox(
         height: _height,
@@ -301,12 +311,7 @@ class _RichTextFieldState extends State<RichTextField> {
               widget.controller.setViewId('$viewId');
               widget.controller.setMethodCallHandler(_handlerCall);
             },
-            gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
-              new Factory<OneSequenceGestureRecognizer>(
-                () => new EagerGestureRecognizer(),
-              ),
-            ].toSet(),
-//            gestureRecognizers: Set()..add((() => VerticalDragGestureRecognizer())),
+            gestureRecognizers: gestureRecognizers,
           ),
         ),
       );
@@ -323,11 +328,7 @@ class _RichTextFieldState extends State<RichTextField> {
             surfaceFactory: (context, controller) {
               return AndroidViewSurface(
                 controller: controller,
-                gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
-                  new Factory<OneSequenceGestureRecognizer>(
-                    () => new EagerGestureRecognizer(),
-                  ),
-                ].toSet(),
+                gestureRecognizers: gestureRecognizers,
                 hitTestBehavior: PlatformViewHitTestBehavior.opaque,
               );
             },
