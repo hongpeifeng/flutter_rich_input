@@ -62,7 +62,8 @@ class RichTextField: NSObject, FlutterPlatformView {
         textView.font = .systemFont(ofSize: fontSize)
         textView.textColor = defaultAttributes[.foregroundColor] as? UIColor ?? UIColor.black
         textView.attributedText = NSMutableAttributedString(string: initText, attributes: defaultAttributes)
-        textView.textContainerInset = UIEdgeInsets(top: 8, left: 10, bottom: 4, right: 0)
+        textView.textContainerInset = UIEdgeInsets(top: 4, left: 5, bottom: 2, right: 0)
+        textView.contentInset = UIEdgeInsets(top: 4, left: 5, bottom: 2, right: 0)
         textView.delegate = self
         textView.backgroundColor = UIColor.clear
         textView.maxHeight = maxHeight
@@ -215,7 +216,7 @@ extension RichTextField: GrowingTextViewDelegate {
     }
 
     /// 高度变化回调
-    func textViewDidChangeHeight(_ textView: GrowingTextView, height: CGFloat) {
+func textViewDidChangeHeight(_ textView: GrowingTextView, height: CGFloat) {
         channel.invokeMethod("updateHeight", arguments: height)
     }
 }
